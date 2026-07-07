@@ -1,0 +1,46 @@
+# Workspace guidance (template)
+
+Copy this to `CLAUDE.md` in your workspace or repo root. It's the short version
+of the loop; the full playbook — scenarios, prompts, routing — is in
+**[DEVELOPER_GUIDE.html](DEVELOPER_GUIDE.html)**.
+
+## The default loop for any change with logic
+
+1. **Write it clean** — front-load standards in the prompt, don't wait for review.
+   Intention-revealing names, one responsibility per function/class, ≤3 params,
+   no magic numbers, no duplicated logic, specific exceptions with context,
+   clarity over cleverness. Ask `@code-guardian` where logic should live *before*
+   writing it when the structure isn't obvious.
+2. **Test it first (TDD)** — RED → GREEN → COMMIT. Write the failing test, minimum
+   code to pass, one behaviour per commit. Run one focused test in the inner loop,
+   the full suite before committing.
+3. **Review it** — `@code-guardian` full audit of `git diff main` before any PR.
+   Fix Critical/Major findings; re-check after fixing.
+
+## Match effort to the task (route by knowledge gap)
+
+- **Config / infra / dep bump** — no nWave, no new test. Just do it, run the suite,
+  and use `@code-guardian` only when a mistake could break production
+  (networking, secrets, a changed client API).
+- **Bug** — `/nw-bugfix` (known cause) or `/nw-root-why` first (unknown). The
+  reproduction is a failing test that stays as the regression net.
+- **Feature / endpoint** — `/nw-discuss → /nw-design → /nw-distill → /nw-deliver`,
+  lean rigor. Ship it with tests.
+- **Refactor** — `/nw-hotspot → /nw-refactor`; tests stay green through every step.
+- **Big module (semi-greenfield)** — add `/nw-devops`, bump to `standard` rigor.
+- **New service (greenfield)** — full 7 waves from `/nw-discover`.
+
+Every feature ends `DISTILL → DELIVER`. Start at the earliest wave where real
+uncertainty exists; skip the rest. Default rigor is **lean** (`/nw-rigor lean`).
+
+## Respect each repo's own rules
+
+Read a repo's own `AGENTS.md` / `CLAUDE.md` before designing — a repo's committed
+guidance always wins over this file.
+
+## Tools
+
+- `@code-guardian` — reviews against 12 standards (Clean Code, Code-as-Prose,
+  SOLID, defensive programming, concurrency, error handling, testing pyramid,
+  API design, database patterns, observability, code review, refactoring).
+- nWave commands (`/nw-*`) — see the cheat sheet in DEVELOPER_GUIDE.html.

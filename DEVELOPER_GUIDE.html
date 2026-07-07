@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer Guide · nWave + Code Guardian</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f6f7f9; --surface: #ffffff; --code-bg: #0f172a; --code-fg: #e2e8f0;
+      --ink: #16202e; --ink-soft: #4a5866; --ink-faint: #7a8896;
+      --teal: #0d9488; --teal-soft: #e0f2f1; --teal-deep: #0f5f57;
+      --amber: #b45309; --amber-soft: #fef3c7; --rose: #be123c; --rose-soft: #ffe4e6;
+      --violet: #6d28d9; --violet-soft: #ede9fe; --line: #e6e9ee; --line-strong: #d3d9e0;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+    .layout { display: flex; min-height: 100vh; }
+    nav { width: 300px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--line); padding: 1.75rem 1.25rem; position: fixed; height: 100vh; overflow-y: auto; top: 0; left: 0; }
+    .brand { font-size: 1.05rem; font-weight: 700; color: var(--teal); letter-spacing: -0.01em; }
+    .brand-sub { font-size: 0.75rem; color: var(--ink-faint); margin: 0.15rem 0 1.6rem; }
+    .nav-group { margin-bottom: 1.5rem; }
+    .nav-group-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-faint); margin-bottom: 0.55rem; padding-left: 0.75rem; }
+    nav ul { list-style: none; }
+    nav li { margin-bottom: 0.12rem; }
+    nav a { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.4rem 0.75rem; color: var(--ink-soft); text-decoration: none; font-size: 0.89rem; border-radius: 6px; border-left: 2px solid transparent; transition: all 0.15s; }
+    nav a:hover { background: var(--teal-soft); color: var(--teal-deep); }
+    nav a.active { background: var(--teal-soft); color: var(--teal-deep); font-weight: 600; border-left-color: var(--teal); }
+    nav a .freq { margin-left: auto; font-size: 0.65rem; color: var(--ink-faint); font-weight: 600; }
+    main { margin-left: 300px; padding: 3rem 3.5rem; max-width: 1080px; width: 100%; }
+    header.page { margin-bottom: 2.5rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--line); }
+    header.page .eyebrow { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--teal); margin-bottom: 0.6rem; }
+    header.page h1 { font-size: 2.3rem; font-weight: 750; letter-spacing: -0.02em; line-height: 1.12; text-wrap: balance; }
+    header.page p { font-size: 1.08rem; color: var(--ink-soft); margin-top: 0.6rem; max-width: 68ch; }
+    section { margin-bottom: 3.5rem; scroll-margin-top: 1.5rem; }
+    h2 { font-size: 1.7rem; font-weight: 720; letter-spacing: -0.015em; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
+    h2 .tag { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.2rem 0.55rem; border-radius: 20px; }
+    .tag.hot { background: var(--rose-soft); color: var(--rose); }
+    .tag.warm { background: var(--amber-soft); color: var(--amber); }
+    .tag.cool { background: var(--teal-soft); color: var(--teal-deep); }
+    .tag.rare { background: #eef2f7; color: var(--ink-faint); }
+    .tag.core { background: var(--violet-soft); color: var(--violet); }
+    .section-lede { font-size: 1.02rem; color: var(--ink-soft); margin-bottom: 1.4rem; max-width: 72ch; }
+    h3 { font-size: 1.22rem; font-weight: 660; margin: 1.9rem 0 0.8rem; }
+    h4 { font-size: 1.02rem; font-weight: 640; margin: 1.1rem 0 0.5rem; }
+    p { color: var(--ink-soft); margin-bottom: 0.9rem; max-width: 72ch; }
+    strong { color: var(--ink); font-weight: 640; }
+    .route { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; padding: 0.9rem 1.1rem; margin: 0.4rem 0 1.5rem; font-size: 0.9rem; }
+    .route .step { font-weight: 640; color: var(--teal-deep); background: var(--teal-soft); padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap; }
+    .route .step.muted { color: var(--ink-faint); background: #eef2f7; font-weight: 600; }
+    .route .arrow { color: var(--ink-faint); font-weight: 700; }
+    .route .skip-note { width: 100%; font-size: 0.8rem; color: var(--ink-faint); margin-top: 0.35rem; }
+    .phase { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.4rem 1.5rem; margin-bottom: 1rem; }
+    .phase-head { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
+    .phase-badge { flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px; background: var(--teal); color: #fff; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+    .phase-badge.guardian { background: var(--ink); }
+    .phase-badge.red { background: var(--rose); }
+    .phase-badge.green { background: #059669; }
+    .phase-badge.commit { background: var(--violet); }
+    .phase-head h4 { margin: 0; font-size: 1.05rem; font-weight: 660; }
+    .phase p { margin-bottom: 0.6rem; }
+    .phase p:last-child { margin-bottom: 0; }
+    pre { background: var(--code-bg); color: var(--code-fg); border-radius: 9px; padding: 1rem 1.15rem; overflow-x: auto; margin: 0.7rem 0; font-family: 'SF Mono', 'Monaco', 'Menlo', monospace; font-size: 0.83rem; line-height: 1.6; }
+    pre .c { color: #7c93ad; } pre .k { color: #5eead4; } pre .s { color: #fcd34d; } pre .g { color: #86efac; } pre .r { color: #fca5a5; }
+    code { font-family: 'SF Mono', 'Monaco', 'Menlo', monospace; background: #eef2f7; color: var(--teal-deep); padding: 0.13em 0.4em; border-radius: 4px; font-size: 0.86em; font-weight: 550; }
+    .callout { border-radius: 10px; padding: 1rem 1.2rem; margin: 1.1rem 0; border: 1px solid; }
+    .callout h4 { margin: 0 0 0.35rem; font-size: 0.95rem; }
+    .callout p { margin: 0; font-size: 0.92rem; }
+    .callout ul { margin: 0.4rem 0 0; padding-left: 1.1rem; }
+    .callout li { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .callout.guardian { background: #f4f6f9; border-color: var(--line-strong); }
+    .callout.tip { background: var(--teal-soft); border-color: #b8e0dc; }
+    .callout.tip h4 { color: var(--teal-deep); }
+    .callout.warn { background: var(--amber-soft); border-color: #fcd9a3; }
+    .callout.warn h4 { color: var(--amber); }
+    .callout.core { background: var(--violet-soft); border-color: #d6ccf5; }
+    .callout.core h4 { color: var(--violet); }
+    .result { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.83rem; padding: 0.3rem 0.7rem; border-radius: 6px; font-weight: 550; }
+    .matrix { display: grid; gap: 0.7rem; margin: 1.2rem 0; }
+    .matrix-row { display: grid; grid-template-columns: 1.3fr 1.5fr auto; gap: 1rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 0.9rem 1.1rem; text-decoration: none; transition: all 0.15s; }
+    .matrix-row:hover { border-color: var(--teal); box-shadow: 0 2px 12px rgba(13,148,136,0.08); }
+    .matrix-row .what { font-weight: 640; color: var(--ink); font-size: 0.95rem; }
+    .matrix-row .how { font-size: 0.85rem; color: var(--ink-soft); }
+    .matrix-row .how code { font-size: 0.8em; }
+    .matrix-row .jump { font-size: 0.78rem; font-weight: 640; color: var(--teal); white-space: nowrap; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+    th { text-align: left; font-weight: 660; color: var(--ink); padding: 0.7rem 0.85rem; background: #eef2f7; border-bottom: 1px solid var(--line-strong); }
+    th:first-child { border-top-left-radius: 8px; } th:last-child { border-top-right-radius: 8px; }
+    td { padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--line); color: var(--ink-soft); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td code { font-size: 0.82em; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+    .compare > div { border-radius: 10px; padding: 1rem 1.15rem; border: 1px solid; }
+    .compare .bad { background: var(--rose-soft); border-color: #fbcfe0; }
+    .compare .good { background: #ecfdf5; border-color: #a7f3d0; }
+    .compare h4 { margin: 0 0 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .compare .bad h4 { color: var(--rose); }
+    .compare .good h4 { color: #047857; }
+    .compare pre { margin: 0; font-size: 0.78rem; }
+    hr.soft { border: none; border-top: 1px solid var(--line); margin: 2rem 0; }
+    @media (max-width: 1024px) { nav { width: 240px; } main { margin-left: 240px; padding: 2rem; } .compare { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .layout { flex-direction: column; } nav { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--line); } main { margin-left: 0; padding: 1.5rem 1.25rem; } .matrix-row { grid-template-columns: 1fr; gap: 0.4rem; } header.page h1 { font-size: 1.8rem; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <div class="brand">🛠 Developer Guide</div>
+    <div class="brand-sub">nWave + Code Guardian</div>
+    <div class="nav-group">
+      <div class="nav-group-title">Start Here</div>
+      <ul>
+        <li><a href="#pick" class="nlink active">What are you doing today?</a></li>
+        <li><a href="#setup" class="nlink">One-time setup</a></li>
+        <li><a href="#routing" class="nlink">The routing rule</a></li>
+      </ul>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Core Practice · every task</div>
+      <ul>
+        <li><a href="#write-clean" class="nlink">Write clean code</a></li>
+        <li><a href="#review-clean" class="nlink">Review for violations</a></li>
+        <li><a href="#tdd" class="nlink">TDD in everything</a></li>
+      </ul>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Daily Scenarios</div>
+      <ul>
+        <li><a href="#infra" class="nlink">Config / infra</a></li>
+        <li><a href="#bugfix" class="nlink">Bug fix</a></li>
+        <li><a href="#deps" class="nlink">Dependency bump</a></li>
+        <li><a href="#new-endpoint" class="nlink">New endpoint / feature</a></li>
+        <li><a href="#update-endpoint" class="nlink">Change an endpoint</a></li>
+        <li><a href="#refactor" class="nlink">Refactor</a></li>
+      </ul>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Bigger Projects</div>
+      <ul>
+        <li><a href="#semi-green" class="nlink">Semi-greenfield</a></li>
+        <li><a href="#greenfield" class="nlink">Fully greenfield</a></li>
+      </ul>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Reference</div>
+      <ul>
+        <li><a href="#standards" class="nlink">Clean-code standards</a></li>
+        <li><a href="#tdd-cycle" class="nlink">TDD cycle</a></li>
+        <li><a href="#rigor" class="nlink">Rigor / lean modes</a></li>
+        <li><a href="#commands" class="nlink">Command cheat sheet</a></li>
+        <li><a href="#guardian" class="nlink">Guardian calls</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <header class="page">
+      <div class="eyebrow">One reference · from a one-line config edit to a new service</div>
+      <h1>Match the effort to the task — write it clean, test it first, ship it verified</h1>
+      <p>Two tools, one workflow. <strong>nWave</strong> structures work into waves and enforces TDD; <strong>Code Guardian</strong> reviews every change against 12 professional standards. This guide shows when to use each — light touch for daily config and bug work, the fuller flow for real features and greenfield builds. Three habits run through all of it: prompt for clean code, review for violations, follow TDD every time.</p>
+    </header>
+
+    <!-- PICK -->
+    <section id="pick">
+      <h2>What are you doing today?</h2>
+      <p class="section-lede">Jump to your task. Whatever you pick, the three <span style="color:var(--violet);font-weight:640;">Core Practice</span> habits apply.</p>
+      <div class="matrix">
+        <a class="matrix-row" href="#infra"><span class="what">Config, environment values, infra/deploy settings</span><span class="how">No pipeline. Guardian only if a mistake is costly.</span><span class="jump">→ Config / infra</span></a>
+        <a class="matrix-row" href="#bugfix"><span class="what">Something's broken — wrong output, timeout, regression</span><span class="how"><code>/nw-bugfix</code> or <code>/nw-root-why</code> → DISTILL → DELIVER</span><span class="jump">→ Bug fix</span></a>
+        <a class="matrix-row" href="#deps"><span class="what">Bumping a library / dependency version</span><span class="how">Bump → run the suite → Guardian on call sites</span><span class="jump">→ Dependency bump</span></a>
+        <a class="matrix-row" href="#new-endpoint"><span class="what">Adding an endpoint or a real feature</span><span class="how">DISCUSS → DESIGN → DISTILL → DELIVER (lean)</span><span class="jump">→ New endpoint</span></a>
+        <a class="matrix-row" href="#update-endpoint"><span class="what">Changing existing behaviour / adding a field</span><span class="how">DESIGN → DISTILL → DELIVER, backward-compat first</span><span class="jump">→ Change endpoint</span></a>
+        <a class="matrix-row" href="#refactor"><span class="what">Extracting logic, renaming, reducing duplication</span><span class="how"><code>/nw-hotspot</code> → <code>/nw-refactor</code>, tests stay green</span><span class="jump">→ Refactor</span></a>
+        <a class="matrix-row" href="#semi-green"><span class="what">A big new module inside an existing repo</span><span class="how">DISCUSS → DESIGN → DEVOPS → DISTILL → DELIVER</span><span class="jump">→ Semi-greenfield</span></a>
+        <a class="matrix-row" href="#greenfield"><span class="what">Standing up a brand-new service</span><span class="how">Full 7-wave flow, DISCOVER → … → DELIVER</span><span class="jump">→ Fully greenfield</span></a>
+      </div>
+      <div class="callout tip">
+        <h4>The 10-second rule</h4>
+        <p>If the change has no behaviour to test (a config value, a version number), don't reach for nWave — make it, verify, and use Guardian only when a mistake would break something in production. Save the waves for anything with logic worth a failing test.</p>
+      </div>
+    </section>
+
+    <!-- SETUP -->
+    <section id="setup">
+      <h2>One-time setup</h2>
+      <p class="section-lede">Install the kit (see the repo README), then set the rigor profile so nWave defaults to lean output — right for solo iteration where token cost matters.</p>
+      <pre><span class="c"># lean = fast agent, RED→GREEN, no reviewer, ~40% of the tokens</span>
+<span class="k">/nw-rigor</span> lean
+
+<span class="c"># Or per-repo, committed so teammates inherit it</span>
+<span class="k">/nw-rigor</span> lean --project</pre>
+      <p>Bump to <code>standard</code> for shared features, <code>thorough</code> for high-risk work. Code Guardian is a global agent — no setup; call <code>@code-guardian</code> from any repo.</p>
+    </section>
+
+    <!-- ROUTING -->
+    <section id="routing">
+      <h2>The one routing rule</h2>
+      <p class="section-lede">nWave is a graph, not a conveyor belt. <strong>Start at the earliest wave where you actually have uncertainty — and every feature ends DISTILL → DELIVER.</strong> Everything before DISTILL is skippable when you already know the answer.</p>
+      <table>
+        <thead><tr><th>Your task</th><th>Start at</th><th>Route</th></tr></thead>
+        <tbody>
+          <tr><td>Config / infra edit</td><td>—</td><td>No pipeline</td></tr>
+          <tr><td>Bug, cause known</td><td><strong>DISTILL</strong></td><td>DISTILL → DELIVER</td></tr>
+          <tr><td>Bug, cause unknown</td><td><strong>root-why</strong></td><td>root-why → DISTILL → DELIVER</td></tr>
+          <tr><td>Feature on a known area</td><td><strong>DISCUSS</strong></td><td>DISCUSS → DESIGN → DISTILL → DELIVER</td></tr>
+          <tr><td>Technical story / refactor</td><td><strong>DESIGN</strong></td><td>DESIGN → DISTILL → DELIVER</td></tr>
+          <tr><td>Big new module (semi-green)</td><td><strong>DISCUSS</strong></td><td>DISCUSS → DESIGN → DEVOPS → DISTILL → DELIVER</td></tr>
+          <tr><td>New service</td><td><strong>DISCOVER</strong></td><td>All 7 waves</td></tr>
+        </tbody>
+      </table>
+      <div class="callout tip"><h4>Entered mid-flow and hit a gap?</h4><p>Run the skipped wave late — it reads the artifacts already on disk and adjusts. Nothing breaks. Ask <code>/nw-buddy "what should I do next?"</code> if unsure where to enter.</p></div>
+    </section>
+
+    <!-- WRITE CLEAN -->
+    <section id="write-clean">
+      <h2>Write clean code <span class="tag core">core · every task</span></h2>
+      <p class="section-lede">The cheapest clean code is the code you never have to fix. Tell the agent your standards <em>up front</em>, in the prompt — don't wait for review to discover violations. Name the standards that matter for the task and set hard constraints.</p>
+      <h3>A reusable prompt preamble</h3>
+      <p>Paste this (or keep it in a snippet) at the top of any "write me code" request. It front-loads the standards so the first draft is already close.</p>
+      <pre><span class="g">Write this following clean-code standards:</span>
+- <span class="s">Names</span> reveal intent; no abbreviations (user not usr, config not cfg)
+- <span class="s">Functions</span> do one thing, ≤ ~20 lines, ≤ 3 params (use a value object beyond that)
+- <span class="s">SOLID</span>: single responsibility per class; depend on interfaces, inject deps
+- <span class="s">Errors</span>: validate inputs at the edge, fail fast, specific exceptions with context
+- <span class="s">No</span> magic numbers, no duplicated logic, no comments that just restate code
+- <span class="s">Reads like prose</span>: clarity over cleverness
+
+Then walk me through the key design decisions.</pre>
+      <h3>Make it project-specific</h3>
+      <p>Add the constraints that match where the code lands — name the architecture, the concurrency model, the layering:</p>
+      <pre><span class="g">@code-guardian</span> before I write this — how should it fit?
+Target: a layered service (Controller → Service → Provider).
+Runs inside a parallel/concurrent path.
+Where does validation vs orchestration vs the external call belong,
+and what's the SOLID-clean shape before I start coding?</pre>
+      <div class="callout core"><h4>Ask for the design before the code</h4><p>A 30-second Guardian check on <em>where</em> logic should live prevents the most expensive violation — a class quietly taking a second responsibility. Clean structure first, clean lines second.</p></div>
+      <h3>What "clean" looks like in one glance</h3>
+      <div class="compare">
+        <div class="bad"><h4>✗ Before</h4><pre><span class="k">public</span> List&lt;int[]&gt; getThem() {
+  List&lt;int[]&gt; l = <span class="k">new</span> ArrayList&lt;&gt;();
+  <span class="k">for</span> (int[] x : theList)
+    <span class="k">if</span> (x[0] == 4) l.add(x);
+  <span class="k">return</span> l;
+}</pre></div>
+        <div class="good"><h4>✓ After</h4><pre><span class="k">public</span> List&lt;Cell&gt; getFlaggedCells() {
+  List&lt;Cell&gt; flagged = <span class="k">new</span> ArrayList&lt;&gt;();
+  <span class="k">for</span> (Cell cell : gameBoard)
+    <span class="k">if</span> (cell.isFlagged())
+      flagged.add(cell);
+  <span class="k">return</span> flagged;
+}</pre></div>
+      </div>
+      <p>Same logic — intention-revealing names, a domain type instead of <code>int[]</code>, and a predicate (<code>isFlagged()</code>) instead of a magic <code>x[0] == 4</code>. That's the bar for every function you ship.</p>
+    </section>
+
+    <!-- REVIEW CLEAN -->
+    <section id="review-clean">
+      <h2>Review for violations <span class="tag core">core · every task</span></h2>
+      <p class="section-lede">Front-loading standards gets you 80% there; Code Guardian catches the rest. Run it as the last step before you commit or push — targeted for a single function, full-audit for a whole PR.</p>
+      <h3>Quick check — one function, mid-work</h3>
+      <pre><span class="g">@code-guardian</span> Quick clean-code review of this method.
+[paste one function]
+Naming, single-responsibility, error handling, edge cases.</pre>
+      <h3>Full PR audit — the one you never skip</h3>
+      <pre><span class="g">@code-guardian</span> Full PR review vs main.
+[paste: git diff main]
+Cover: SOLID, input validation at the edges, error handling,
+thread-safety in concurrent paths, N+1 / extra round-trips,
+security, and test coverage of every case.</pre>
+      <h3>How it reports back</h3>
+      <p>Findings come ranked by severity so you know what blocks the PR versus what's polish:</p>
+      <table>
+        <thead><tr><th>Level</th><th>Meaning</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>🔴 <strong>Critical</strong></td><td>Security, correctness, or data-loss risk</td><td>Fix before merge</td></tr>
+          <tr><td>🟠 <strong>Major</strong></td><td>Real quality / performance / maintainability issue</td><td>Fix before merge</td></tr>
+          <tr><td>🟡 <strong>Minor</strong></td><td>Improvement opportunity</td><td>Fix now or ticket it</td></tr>
+          <tr><td>🔵 <strong>Style</strong></td><td>Naming / formatting nits</td><td>Judgment call</td></tr>
+        </tbody>
+      </table>
+      <h3>Close the loop</h3>
+      <pre><span class="g">@code-guardian</span> I addressed your findings — re-review this diff.
+[paste updated diff]  Anything still open?</pre>
+      <div class="callout guardian"><h4>Rhythm</h4><p>Guardian at <strong>design time</strong> (catch structural problems cheaply) and again as a <strong>full PR audit</strong> before push. For config edits and dep bumps, only when a mistake is costly. Keep pastes narrow — one file or diff at a time beats dumping 1000 lines.</p></div>
+    </section>
+
+    <!-- TDD -->
+    <section id="tdd">
+      <h2>TDD in everything <span class="tag core">core · every task with logic</span></h2>
+      <p class="section-lede">nWave's DELIVER wave enforces a 3-phase cycle — <strong>RED → GREEN → COMMIT</strong> — and its execution monitor keeps steps from skipping ahead. You get the same discipline by hand on any change: write the failing test first, make it pass with the minimum, commit one behaviour at a time.</p>
+      <div class="route">
+        <span class="step" style="background:var(--rose-soft);color:var(--rose);">RED — failing test</span><span class="arrow">→</span>
+        <span class="step" style="background:#ecfdf5;color:#047857;">GREEN — minimum to pass</span><span class="arrow">→</span>
+        <span class="step" style="background:var(--violet-soft);color:var(--violet);">COMMIT — one behaviour</span>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge red">R</span><h4>RED — write the test, watch it fail</h4></div>
+        <p>Start from the acceptance criteria (or the bug report). The test must fail for the right reason before you write any implementation.</p>
+        <pre><span class="c"># run one focused test (syntax varies by stack — Maven shown)</span>
+mvn test -Dtest=OrderValidatorTest#rejectsNegativeQuantity
+<span class="r"># ✗ fails — no implementation yet. Good.</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge green">G</span><h4>GREEN — minimum code to pass</h4></div>
+        <p>Write the least code that makes the test green. No gold-plating — extra behaviour needs its own test first.</p>
+        <pre>mvn test -Dtest=OrderValidatorTest#rejectsNegativeQuantity
+<span class="g"># ✓ passes</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge commit">C</span><h4>COMMIT — one behaviour, then the full net</h4></div>
+        <pre>mvn clean verify              <span class="c"># unit + integration</span>
+<span class="k">git</span> commit -m "feat: reject negative order quantity"</pre>
+        <p>One behaviour per commit keeps git history a readable trace of the TDD progression — exactly what nWave produces automatically in DELIVER.</p>
+      </div>
+      <h3>Letting nWave drive the cycle</h3>
+      <p>For feature work, <code>/nw-deliver</code> runs the whole loop: it builds a roadmap (one step per acceptance scenario) and executes each through RED→GREEN→COMMIT with monitoring. To run a single unit by hand — no full orchestration:</p>
+      <pre><span class="k">/nw-execute</span> @software-crafter "reject negative order quantity"
+<span class="k">/nw-refactor</span>          <span class="c"># tidy while green</span>
+<span class="k">/nw-review</span> @software-crafter task "reject negative order quantity"</pre>
+      <div class="callout tip"><h4>How TDD folds into each scenario below</h4><ul>
+        <li><strong>Bug fix</strong> — the failing test <em>is</em> the reproduction; it becomes your regression net.</li>
+        <li><strong>New / changed endpoint</strong> — DISTILL writes the acceptance tests; DELIVER makes them pass one at a time.</li>
+        <li><strong>Refactor</strong> — the special case: tests are already green and must <em>stay</em> green through every step.</li>
+        <li><strong>Config / dep bump</strong> — no new behaviour, so no new test; the existing suite is the safety check.</li>
+      </ul></div>
+    </section>
+
+    <hr class="soft">
+
+    <!-- INFRA -->
+    <section id="infra">
+      <h2>Config / infra change <span class="tag hot">common</span></h2>
+      <p class="section-lede">Environment values, deploy settings, feature flags, connection strings, scaling. High-frequency, low-lines, usually no behaviour to unit-test. nWave adds nothing here — the value is a careful eye on blast radius.</p>
+      <div class="route">
+        <span class="step muted">edit config</span><span class="arrow">→</span>
+        <span class="step muted">diff</span><span class="arrow">→</span>
+        <span class="step">Guardian (if risky)</span><span class="arrow">→</span>
+        <span class="step muted">deploy + watch metrics</span>
+        <span class="skip-note">No waves, no TDD — there's no behaviour to test. Deliberately outside the pipeline.</span>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">1</span><h4>Make the change, read your own diff</h4></div>
+        <pre><span class="k">git</span> diff -- <span class="c"># right environment? right target? no plaintext secret?</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge guardian">G</span><h4>Guardian — only when a mistake takes a service down</h4></div>
+        <p>Networking, connection routing, and secrets are where outages come from. Plain value bump → skip. Anything touching reachability → ask:</p>
+        <pre><span class="g">@code-guardian</span> Review this infra change for blast radius.
+[paste config diff]
+Flag anything that breaks service-to-service reachability, leaks a
+secret, or differs between environments.</pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">2</span><h4>Deploy and watch the signal</h4></div>
+        <p>Trust the metrics after rollout, not the config file. Watch error rate and reachability.</p>
+        <span class="result">✓ config in, deploy green, metrics steady</span>
+      </div>
+      <div class="callout warn"><h4>Don't over-tool this</h4><p>A one-line value change needs no wave, roadmap, or test. The failure mode here is <em>ceremony</em>, not under-process.</p></div>
+    </section>
+
+    <!-- BUGFIX -->
+    <section id="bugfix">
+      <h2>Bug fix <span class="tag hot">common</span></h2>
+      <p class="section-lede">The sweet spot is pure TDD: reproduce with a failing test, fix, keep the test as the regression net.</p>
+      <h3>Cause unknown → root-why first</h3>
+      <div class="route"><span class="step">/nw-root-why</span><span class="arrow">→</span><span class="step">DISTILL</span><span class="arrow">→</span><span class="step">DELIVER</span></div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">1</span><h4>Investigate systematically</h4></div>
+        <pre><span class="k">/nw-root-why</span> "Scheduled job stops running after midnight"</pre>
+        <p>Structured analysis instead of guess-and-check; produces a findings note for the ticket.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge guardian">G</span><h4>Guardian on the suspect code</h4></div>
+        <pre><span class="g">@code-guardian</span> Debug lens — what could cause this?
+[paste scheduler / handler code]
+Check race conditions, timezone/DST handling, connection-pool
+exhaustion, unreleased resources.</pre>
+      </div>
+      <h3>Cause known → straight to a failing test (RED → GREEN → COMMIT)</h3>
+      <div class="route"><span class="step">/nw-bugfix</span><span class="skip-note">One command = root-cause note → your review → regression test + fix via TDD.</span></div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge red">R</span><h4>Reproduce with a failing test</h4></div>
+        <pre><span class="k">git</span> checkout -b fix/midnight-cutoff
+mvn test -Dtest=SchedulerTest#runsAfterMidnight
+<span class="r"># ✗ fails — reproduces the bug</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge green">G</span><h4>Fix until green, run the full net</h4></div>
+        <pre>mvn clean verify              <span class="c"># unit + integration all green</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge guardian">G</span><h4>Guardian before the PR</h4></div>
+        <pre><span class="g">@code-guardian</span> Review this fix vs main.
+[paste: git diff main]
+Confirm the regression test genuinely covers the bug, no new
+race/resource issue, no behaviour change beyond the fix.</pre>
+        <span class="result">✓ bug fixed, regression test guards it, no collateral</span>
+      </div>
+    </section>
+
+    <!-- DEPS -->
+    <section id="deps">
+      <h2>Dependency / version bump</h2>
+      <p class="section-lede">Library and client bumps. No new behaviour, so no new test — the existing suite <em>is</em> the review.</p>
+      <div class="route"><span class="step muted">bump version</span><span class="arrow">→</span><span class="step muted">run the suite</span><span class="arrow">→</span><span class="step">Guardian (if API changed)</span></div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">1</span><h4>Bump and run the whole suite</h4></div>
+        <pre>mvn clean verify   <span class="c"># integration tests catch most client-bump breakage</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge guardian">G</span><h4>Guardian only if the bump changes an API you call</h4></div>
+        <pre><span class="g">@code-guardian</span> This client went 2.3 → 3.0.
+[paste the call sites]
+Breaking-change risk, deprecated methods, changed error/timeout semantics?</pre>
+        <span class="result">✓ dependency current, suite green, call sites sound</span>
+      </div>
+    </section>
+
+    <!-- NEW ENDPOINT -->
+    <section id="new-endpoint">
+      <h2>New endpoint / feature <span class="tag warm">the disciplined work</span></h2>
+      <p class="section-lede">Where nWave earns its keep — the multi-file, test-backed changes. You know the system, so skip DISCOVER/DIVERGE and start at DISCUSS.</p>
+      <div class="route">
+        <span class="step">DISCUSS</span><span class="arrow">→</span><span class="step">DESIGN</span><span class="arrow">→</span><span class="step">DISTILL</span><span class="arrow">→</span><span class="step">DELIVER</span>
+        <span class="skip-note">Skip DESIGN if it lands entirely inside existing layers with no new boundary or ADR.</span>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">1</span><h4>DISCUSS — nail the contract</h4></div>
+        <pre><span class="k">/nw-discuss</span> "Add an endpoint to verify a user's email"</pre>
+        <p>Request/response shape, validation rules, error cases, acceptance criteria — before touching code.</p>
+        <div class="result">→ docs/feature/&lt;id&gt;/discuss/ — user stories + acceptance criteria</div>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">2</span><h4>DESIGN — fit the layers (write-clean starts here)</h4></div>
+        <pre><span class="c"># ground yourself in the existing structure first</span>
+<span class="k">/nw-design</span> "email-verification"
+
+<span class="g">@code-guardian</span> Where should validation vs orchestration live?
+Any SOLID concern? Thread-safety if it runs in a concurrent path?</pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">3</span><h4>DISTILL — acceptance tests define done (RED)</h4></div>
+        <pre><span class="k">/nw-distill</span> "email-verification"</pre>
+        <p>Given-When-Then for happy path + every rejection case. These become your integration-test targets and the failing tests DELIVER drives green.</p>
+        <div class="result">→ acceptance-tests.feature</div>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">4</span><h4>DELIVER — Outside-In TDD, one commit per step (GREEN → COMMIT)</h4></div>
+        <pre><span class="k">git</span> checkout -b feature/email-verification
+<span class="k">/nw-deliver</span> "email-verification"
+mvn clean verify</pre>
+        <p>Features ship <em>with</em> their integration tests — a real feature is a multi-file change (endpoint model, validation, service logic, and its tests). That's the bar.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge guardian">G</span><h4>Guardian — full PR audit before push</h4></div>
+        <pre><span class="g">@code-guardian</span> Full PR review vs main. [paste: git diff main]
+Input validation at the edge, error responses & status codes,
+thread-safety in concurrent paths, N+1 / extra round-trips,
+test coverage of every reject case.</pre>
+        <span class="result">✓ feature merged with integration tests and a clean audit</span>
+      </div>
+    </section>
+
+    <!-- UPDATE ENDPOINT -->
+    <section id="update-endpoint">
+      <h2>Change an existing endpoint</h2>
+      <p class="section-lede">Adding a field, tweaking behaviour, extending a flow. You know the area — start at DESIGN, and lead with backward compatibility because other services depend on this contract.</p>
+      <div class="route"><span class="step">DESIGN</span><span class="arrow">→</span><span class="step">DISTILL</span><span class="arrow">→</span><span class="step">DELIVER</span></div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">1</span><h4>Check who depends on it</h4></div>
+        <pre><span class="k">grep</span> -r "the-endpoint-path" --include=*.java
+<span class="c"># plus the OpenAPI/Swagger surface — other services consume these</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge guardian">G</span><h4>Guardian — is the change backward-compatible?</h4></div>
+        <pre><span class="g">@code-guardian</span> Endpoint change review.
+Adding optional field 'preferredLanguage' to POST /users.
+[paste model + controller diff]
+Confirm: new field optional, existing callers unaffected,
+response additive-only, no status-code changes.</pre>
+        <div class="callout warn"><h4>Never remove or retype a field</h4><p>Add optional, keep old behaviour, deprecate later. A breaking response change ripples into every consumer.</p></div>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">2</span><h4>Test both paths, then implement (RED → GREEN)</h4></div>
+        <pre><span class="k">/nw-distill</span> "add-preferred-language"   <span class="c"># new + unchanged-caller scenarios</span>
+<span class="k">/nw-deliver</span> "add-preferred-language"
+mvn clean verify</pre>
+        <span class="result">✓ endpoint extended, old clients unbroken, tests prove both</span>
+      </div>
+    </section>
+
+    <!-- REFACTOR -->
+    <section id="refactor">
+      <h2>Refactor <span class="tag cool">background hum</span></h2>
+      <p class="section-lede">Extracting logic, renaming for readability, reducing duplication, batching calls. The rule that makes it safe: <strong>tests stay green through every step</strong> — behaviour locked while structure moves.</p>
+      <div class="route"><span class="step">/nw-hotspot</span><span class="arrow">→</span><span class="step">/nw-refactor</span><span class="skip-note">Add /nw-mikado for a big multi-step change needing a dependency-ordered roadmap.</span></div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">1</span><h4>Find what's worth touching</h4></div>
+        <pre><span class="k">/nw-hotspot</span>   <span class="c"># most-churned files = best refactor ROI</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">2</span><h4>Refactor in RPP levels, green throughout</h4></div>
+        <pre>mvn clean verify              <span class="c"># green BEFORE you start — non-negotiable</span>
+<span class="k">/nw-refactor</span> my-module      <span class="c"># L1 rename/extract → L2 move → L3 pattern → L4 arch</span>
+mvn clean verify              <span class="c"># green after EVERY step</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge guardian">G</span><h4>Guardian — behaviour truly unchanged?</h4></div>
+        <pre><span class="g">@code-guardian</span> Refactor review vs main. [paste: git diff main]
+Confirm behaviour is identical, tests assert the same outcomes,
+no consistency/ordering bug introduced.</pre>
+        <span class="result">✓ cleaner/faster code, identical behaviour, green suite</span>
+      </div>
+    </section>
+
+    <hr class="soft">
+
+    <!-- SEMI GREENFIELD -->
+    <section id="semi-green">
+      <h2>Semi-greenfield <span class="tag cool">big new module</span></h2>
+      <p class="section-lede">A substantial new subsystem inside an existing repo — a new pipeline, a whole domain area. New boundaries and design uncertainty, but the platform, deploy, and conventions already exist. Start at DISCUSS, add DEVOPS because you're introducing new infra surface, bump rigor to <code>standard</code> for a reviewer.</p>
+      <div class="route">
+        <span class="step">DISCUSS</span><span class="arrow">→</span><span class="step">DESIGN</span><span class="arrow">→</span><span class="step">DEVOPS</span><span class="arrow">→</span><span class="step">DISTILL</span><span class="arrow">→</span><span class="step">DELIVER</span>
+        <span class="skip-note">Skip DISCOVER/DIVERGE — the problem's known and the system context exists.</span>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">0</span><h4>Set rigor and frame the module</h4></div>
+        <pre><span class="k">/nw-rigor</span> standard        <span class="c"># reviewer on, interactive expansion menus</span>
+<span class="k">/nw-discuss</span> "Add an event-driven pricing pipeline"</pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">1</span><h4>DESIGN — new boundaries, real ADRs</h4></div>
+        <p>This is where a new module differs from a feature: you're drawing component boundaries others will build on. Get them right.</p>
+        <pre><span class="k">/nw-design</span> "pricing-pipeline"
+<span class="k">/nw-diagram</span>                <span class="c"># C4 container/component view</span>
+
+<span class="g">@code-guardian</span> Review these boundaries for SOLID and cohesion.
+Are responsibilities cleanly split? Any class doing two jobs?</pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">2</span><h4>DEVOPS — wire the new surface</h4></div>
+        <pre><span class="k">/nw-devops</span> "pricing-pipeline"
+<span class="c"># new queues/topics, storage, deploy values, tracing spans, dashboards</span></pre>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">3</span><h4>DISTILL → DELIVER — TDD the whole module</h4></div>
+        <pre><span class="k">/nw-distill</span> "pricing-pipeline"   <span class="c"># acceptance tests per scenario</span>
+<span class="k">/nw-deliver</span> "pricing-pipeline"   <span class="c"># roadmap → RED→GREEN→COMMIT per step</span>
+mvn clean verify
+
+<span class="g">@code-guardian</span> Full audit vs main — pipeline correctness, event
+ordering/idempotency, thread-safety, test coverage of each handler.</pre>
+        <span class="result">✓ new module shipped, boundaries clean, every handler test-backed</span>
+      </div>
+    </section>
+
+    <!-- GREENFIELD -->
+    <section id="greenfield">
+      <h2>Fully greenfield <span class="tag rare">full flow</span></h2>
+      <p class="section-lede">A brand-new service is where the complete nWave pipeline is genuinely worth it — high uncertainty, new boundaries, stakeholder alignment. Run all seven waves; set rigor to <code>standard</code> or <code>thorough</code>.</p>
+      <div class="route">
+        <span class="step">DISCOVER</span><span class="arrow">→</span><span class="step">DIVERGE</span><span class="arrow">→</span><span class="step">DISCUSS</span><span class="arrow">→</span><span class="step">DESIGN</span><span class="arrow">→</span><span class="step">DEVOPS</span><span class="arrow">→</span><span class="step">DISTILL</span><span class="arrow">→</span><span class="step">DELIVER</span>
+      </div>
+      <div class="phase">
+        <div class="phase-head"><span class="phase-badge">0</span><h4>Kick off with the wizard</h4></div>
+        <pre><span class="k">/nw-rigor</span> standard
+<span class="k">/nw-new</span> "Build a real-time notification service"
+<span class="c"># /nw-new classifies the work and launches the right first wave</span></pre>
+      </div>
+      <table>
+        <thead><tr><th>Wave</th><th>Command</th><th>What you get</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DISCOVER</strong></td><td><code>/nw-discover</code></td><td>Problem validated, opportunity scored</td></tr>
+          <tr><td><strong>DIVERGE</strong></td><td><code>/nw-diverge</code></td><td>3–5 architecture directions with trade-offs</td></tr>
+          <tr><td><strong>DISCUSS</strong></td><td><code>/nw-discuss</code></td><td>User stories, journeys, acceptance criteria</td></tr>
+          <tr><td><strong>DESIGN</strong></td><td><code>/nw-design</code></td><td>C4 diagrams, ADRs, boundaries <em>(← Guardian review)</em></td></tr>
+          <tr><td><strong>DEVOPS</strong></td><td><code>/nw-devops</code></td><td>Infra, CI/CD, observability wiring</td></tr>
+          <tr><td><strong>DISTILL</strong></td><td><code>/nw-distill</code></td><td>Given-When-Then acceptance tests (RED)</td></tr>
+          <tr><td><strong>DELIVER</strong></td><td><code>/nw-deliver</code></td><td>Outside-In TDD build <em>(← Guardian audit)</em></td></tr>
+        </tbody>
+      </table>
+      <div class="callout tip"><h4>Even here, route by knowledge gap</h4><p>If a product owner already validated the need, start at DISCUSS. Seven waves are the ceiling, not a mandate.</p></div>
+    </section>
+
+    <hr class="soft">
+
+    <!-- STANDARDS -->
+    <section id="standards">
+      <h2>Clean-code standards</h2>
+      <p class="section-lede">The 12 standards Code Guardian carries. Name the relevant ones in your write / review prompts.</p>
+      <table>
+        <thead><tr><th>Standard</th><th>Core idea</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Clean Code</strong> (Martin)</td><td>Intention-revealing names, functions do one thing, no magic numbers, comments explain why</td></tr>
+          <tr><td><strong>Code as Prose</strong> (Booch)</td><td>Clarity over cleverness; reads top-to-bottom like well-written prose</td></tr>
+          <tr><td><strong>SOLID</strong></td><td>Single responsibility, open/closed, Liskov, interface segregation, dependency inversion</td></tr>
+          <tr><td><strong>Defensive programming</strong></td><td>Validate at boundaries, fail fast, assert invariants, defensive copies</td></tr>
+          <tr><td><strong>Concurrency</strong></td><td>Synchronize shared state, no races, no deadlocks</td></tr>
+          <tr><td><strong>Error handling</strong></td><td>Specific exceptions with context, ARM/try-finally, no swallowed errors</td></tr>
+          <tr><td><strong>Testing pyramid</strong></td><td>Many unit, some integration, few E2E; isolated, meaningful assertions</td></tr>
+          <tr><td><strong>API design</strong></td><td>REST conventions, correct status codes, backward compatibility</td></tr>
+          <tr><td><strong>Database patterns</strong></td><td>Kill N+1, index right, transaction safety, connection pooling</td></tr>
+          <tr><td><strong>Observability</strong></td><td>Structured logs, trace-ID propagation, no PII/secrets in logs</td></tr>
+          <tr><td><strong>Code review</strong></td><td>Constructive, specific, scoped feedback</td></tr>
+          <tr><td><strong>Refactoring</strong></td><td>RPP L1–L6, behaviour preserved, tests green each step</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- TDD CYCLE -->
+    <section id="tdd-cycle">
+      <h2>TDD cycle reference</h2>
+      <table>
+        <thead><tr><th>Phase</th><th>Do</th><th>Example command</th></tr></thead>
+        <tbody>
+          <tr><td>🔴 <strong>RED</strong></td><td>Write a test for one behaviour; watch it fail for the right reason</td><td><code>mvn test -Dtest=X#case</code></td></tr>
+          <tr><td>🟢 <strong>GREEN</strong></td><td>Minimum code to pass — no extras</td><td><code>mvn test -Dtest=X#case</code></td></tr>
+          <tr><td>🟣 <strong>COMMIT</strong></td><td>Full suite, then commit one behaviour</td><td><code>mvn clean verify</code> → <code>git commit</code></td></tr>
+        </tbody>
+      </table>
+      <p>Adapt commands to your stack (Gradle: <code>./gradlew test</code>; Node: <code>npm test</code>; etc.). <code>/nw-deliver</code> runs this loop automatically, one roadmap step per acceptance scenario, with execution monitoring so steps can't skip ahead.</p>
+    </section>
+
+    <!-- RIGOR -->
+    <section id="rigor">
+      <h2>Rigor / lean modes</h2>
+      <p class="section-lede">One knob scales agent quality, review depth, and doc verbosity to risk. Set it with <code>/nw-rigor</code>.</p>
+      <table>
+        <thead><tr><th>Profile</th><th>Agent</th><th>Reviewer</th><th>TDD</th><th>Use for</th></tr></thead>
+        <tbody>
+          <tr><td><strong>lean</strong></td><td>fast</td><td>none</td><td>RED→GREEN</td><td>Default — bug fixes, small features, solo iteration</td></tr>
+          <tr><td><strong>standard</strong></td><td>mid</td><td>yes</td><td>3-phase</td><td>Shared features, semi-greenfield modules</td></tr>
+          <tr><td><strong>thorough</strong></td><td>top</td><td>yes</td><td>3-phase</td><td>High-risk change, new service</td></tr>
+          <tr><td><strong>exhaustive</strong></td><td>top</td><td>top</td><td>+ ≥80% mutation</td><td>Correctness-critical paths</td></tr>
+        </tbody>
+      </table>
+      <p>Lean runs ~40% of the token cost and skips the reviewer. Reach for the mutation gate (<code>exhaustive</code> or ad-hoc <code>/nw-mutation-test</code>) on logic where a silent test gap is expensive.</p>
+    </section>
+
+    <!-- COMMANDS -->
+    <section id="commands">
+      <h2>Command cheat sheet</h2>
+      <table>
+        <thead><tr><th>Command</th><th>When you reach for it</th></tr></thead>
+        <tbody>
+          <tr><td><code>/nw-buddy "…"</code></td><td>"Where do I start / what's next?" — reads the project and tells you</td></tr>
+          <tr><td><code>/nw-new "…"</code></td><td>Start a new feature; wizard picks the entry wave</td></tr>
+          <tr><td><code>/nw-continue</code></td><td>Resume a half-done feature at the next step</td></tr>
+          <tr><td><code>/nw-bugfix</code></td><td>Packaged bug flow: root-cause → regression test → fix (TDD)</td></tr>
+          <tr><td><code>/nw-root-why "…"</code></td><td>Systematic root-cause analysis for an unknown-cause bug</td></tr>
+          <tr><td><code>/nw-discuss "…"</code></td><td>Requirements + acceptance criteria</td></tr>
+          <tr><td><code>/nw-design "…"</code></td><td>Architecture / where it fits the layers</td></tr>
+          <tr><td><code>/nw-devops "…"</code></td><td>CI/CD, infra, observability for a new surface</td></tr>
+          <tr><td><code>/nw-distill "…"</code></td><td>Given-When-Then acceptance tests (the quality gate)</td></tr>
+          <tr><td><code>/nw-deliver "…"</code></td><td>Full DELIVER: roadmap → Outside-In TDD → review → finalize</td></tr>
+          <tr><td><code>/nw-execute @agent "…"</code></td><td>One TDD unit without full orchestration (inner loop)</td></tr>
+          <tr><td><code>/nw-refactor "…"</code></td><td>RPP L1–L6 structured refactor, tests green throughout</td></tr>
+          <tr><td><code>/nw-hotspot</code></td><td>Git churn analysis — where refactoring pays off</td></tr>
+          <tr><td><code>/nw-diagram</code></td><td>C4 architecture diagrams (Mermaid/PlantUML)</td></tr>
+          <tr><td><code>/nw-spike "…"</code></td><td>Timeboxed probe of one risky assumption</td></tr>
+          <tr><td><code>/nw-rigor &lt;profile&gt;</code></td><td>Set lean/standard/thorough/exhaustive</td></tr>
+          <tr><td><code>/nw-finalize "…"</code></td><td>Archive a completed feature, clean the workspace</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- GUARDIAN -->
+    <section id="guardian">
+      <h2>Code Guardian — the calls that matter</h2>
+      <p class="section-lede">Twelve standards in one agent. These calls cover almost everything. Keep pastes narrow — one file or diff at a time.</p>
+      <h4>Design fit (before you write)</h4>
+      <pre><span class="g">@code-guardian</span> Where should this live in a layered service —
+layer fit, SOLID, thread-safety in concurrent paths?</pre>
+      <h4>Quick check (one function, mid-work)</h4>
+      <pre><span class="g">@code-guardian</span> Quick clean-code review — naming, single-responsibility,
+error handling, edge cases. [paste one function]</pre>
+      <h4>Infra blast-radius (networking/secrets only)</h4>
+      <pre><span class="g">@code-guardian</span> Review this infra change for blast radius — reachability,
+secret exposure, environment drift. [paste config diff]</pre>
+      <h4>Bug debug lens</h4>
+      <pre><span class="g">@code-guardian</span> What could cause &lt;symptom&gt;? Check races, timezone/DST,
+connection-pool exhaustion, unreleased resources. [paste code]</pre>
+      <h4>Endpoint / API review</h4>
+      <pre><span class="g">@code-guardian</span> API review — REST conventions, status codes, input
+validation, backward compatibility for existing callers. [paste endpoint]</pre>
+      <h4>Full PR audit (never skip)</h4>
+      <pre><span class="g">@code-guardian</span> Full PR review vs main. [paste: git diff main]
+SOLID, N+1 / round-trips, thread-safety, error handling,
+security, test coverage of every case.</pre>
+    </section>
+
+    <section style="border-top: 2px solid var(--line); padding-top: 1.8rem;">
+      <div class="callout tip">
+        <h4>The whole thing in one breath</h4>
+        <p>Match the tool to the task. <strong>Write it clean</strong> by naming standards up front; <strong>test it first</strong> with RED→GREEN→COMMIT; <strong>review it</strong> with a Guardian audit of the diff. Config &amp; bumps: just do it, Guardian if it's dangerous. Bugs: <code>/nw-bugfix</code>, keep the regression test. Features: DISCUSS→DESIGN→DISTILL→DELIVER on lean, ship with tests. Big module: add DEVOPS on standard rigor. New service: the full seven waves. Always end DISTILL→DELIVER; always let the metrics and the test suite have the last word.</p>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+  const links = document.querySelectorAll('nav a.nlink');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  links.forEach(l => l.addEventListener('click', () => { links.forEach(x => x.classList.remove('active')); l.classList.add('active'); }));
+  const setActive = () => {
+    let cur = sections[0];
+    for (const s of sections) { if (window.scrollY >= s.offsetTop - 120) cur = s; }
+    links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + (cur ? cur.id : '')));
+  };
+  window.addEventListener('scroll', setActive, { passive: true });
+  setActive();
+</script>
+</body>
+</html>
