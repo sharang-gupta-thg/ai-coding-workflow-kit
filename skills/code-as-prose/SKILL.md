@@ -1,6 +1,6 @@
 ---
 name: code-as-prose
-description: "Code as Well-Written Prose — Grady Booch's philosophy that code should read like well-crafted writing, emphasizing simplicity, readability, and clarity over cleverness."
+description: "Grady Booch's code-as-prose philosophy: code should read top to bottom like well-written prose, with clarity over cleverness. Use when code works but is hard to follow, when choosing between a clever and a plain solution, or when reviewing readability."
 user-invocable: true
 argument-hint: "[readability|clarity|simplicity] - Example: 'Is this code readable like prose?'"
 ---

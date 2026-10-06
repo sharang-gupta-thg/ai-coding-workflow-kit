@@ -1,6 +1,6 @@
 ---
 name: observability
-description: "Observability practices — structured logging, metrics, distributed tracing, and SLO/SLI frameworks for production systems."
+description: "Observability practice: structured logging, metrics, distributed tracing, correlation IDs and SLOs/SLIs, with no secrets or PII in logs. Use when adding logging or metrics, instrumenting a new path, or making a failure diagnosable in production."
 user-invocable: true
 argument-hint: "[logging|tracing|metrics] - Example: 'What should we log here?'"
 ---

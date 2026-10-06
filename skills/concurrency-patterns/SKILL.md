@@ -1,6 +1,6 @@
 ---
 name: concurrency-patterns
-description: "Concurrency patterns and thread-safe programming — patterns for multi-threaded systems, synchronization, and concurrent data structures."
+description: "Concurrency and thread-safety patterns: shared state, synchronization, locks and atomics, race and deadlock prevention, concurrent collections and async patterns. Use when code runs in parallel, shares mutable state, or you need to ask 'is this thread-safe?'."
 user-invocable: true
 argument-hint: "[pattern|thread-safety|synchronization] - Example: 'Is this code thread-safe?'"
 ---

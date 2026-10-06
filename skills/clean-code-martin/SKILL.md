@@ -1,6 +1,6 @@
 ---
 name: clean-code-martin
-description: "Uncle Bob's Clean Code principles — comprehensive guide to writing maintainable, professional code based on Robert C. Martin's Clean Code book."
+description: "Robert C. Martin's Clean Code principles: intention-revealing names, small single-purpose functions, few parameters, no duplication, comments that explain why. Use when writing new code, reviewing a function or class for readability, or naming things."
 user-invocable: true
 argument-hint: "[code-review|principle|best-practice] - Example: 'Review this function for naming issues'"
 ---

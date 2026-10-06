@@ -1,6 +1,6 @@
 ---
 name: solid-principles
-description: "SOLID design principles — five core principles for writing maintainable, scalable, and flexible object-oriented code."
+description: "SOLID design principles: single responsibility, open/closed, Liskov substitution, interface segregation and dependency inversion. Use when designing classes and module boundaries, deciding where logic should live, or reviewing a class that does too much."
 user-invocable: true
 argument-hint: "[principle|design-review] - Example: 'Review this class for SRP violations'"
 ---

@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: "API design principles — REST, GraphQL, and gRPC best practices for versioning, naming, documentation, and developer experience."
+description: "API design principles for REST, GraphQL and gRPC: resource naming, HTTP methods and status codes, versioning, backward compatibility, pagination and error contracts. Use when designing or reviewing an endpoint, changing a request/response shape, or deciding how to version an API."
 user-invocable: true
 argument-hint: "[endpoint|versioning|documentation] - Example: 'Design a REST endpoint for user creation'"
 ---

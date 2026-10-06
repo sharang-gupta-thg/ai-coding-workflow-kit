@@ -1,6 +1,6 @@
 ---
 name: refactoring-strategies
-description: "Systematic refactoring patterns — L1-L6 refactoring levels, safe techniques, and when to refactor."
+description: "Systematic refactoring: Refactoring Priority Premise levels L1-L6, safe small steps under green tests, and choosing the right technique. Use when restructuring existing code, reducing duplication, or planning a refactor that must not change behaviour."
 user-invocable: true
 argument-hint: "[simplification|safety|technique] - Example: 'Refactor this for clarity'"
 ---

@@ -1,13 +1,13 @@
-This project bundles skill files from the nWave framework for convenience.
+This project bundles an unmodified snapshot of files from the nWave framework
+under vendor/nwave (skills, agents and commands; version in vendor/nwave/VERSION).
 
   nWave — https://github.com/nWave-ai/nWave
   Copyright (c) nWave-ai
-  Licensed under the MIT License.
+  Licensed under the MIT License (vendor/nwave/LICENSE)
 
-The bundled files live under skills/nw-*. They are the property of nWave-ai and
-are included here under the terms of their MIT license. For the complete nWave
-framework — agents, slash commands, and TDD enforcement hooks — install it from
-the upstream project rather than relying on these skill files alone.
+nWave's TDD enforcement hooks and CLI are not bundled; install them from the
+upstream project.
 
 Everything else in this repository (the Code Guardian agent, the twelve
-clean-code skills, the developer guide, and the install script) is original work.
+clean-code skills, the developer guide, the plugin manifests and the scripts)
+is original work.

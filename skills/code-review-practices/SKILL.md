@@ -1,6 +1,6 @@
 ---
 name: code-review-practices
-description: "Code review best practices — what to look for, how to give constructive feedback, and how to receive reviews professionally."
+description: "Code review practice: what to look for, how to write specific and constructive feedback, how to size a PR and how to respond to review comments. Use when reviewing a pull request, writing review comments, or preparing a change for review."
 user-invocable: true
 argument-hint: "[feedback|standards|improvement] - Example: 'Review this PR for quality issues'"
 ---

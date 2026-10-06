@@ -1,6 +1,6 @@
 ---
 name: testing-pyramid
-description: "Testing pyramid strategy — the right balance of unit, integration, and end-to-end tests for confidence and speed."
+description: "Testing pyramid strategy: many fast unit tests, fewer integration tests, very few end-to-end tests, with isolated tests and meaningful assertions. Use when deciding what tests a change needs, at which level, or when reviewing test quality and coverage."
 user-invocable: true
 argument-hint: "[level|strategy|coverage] - Example: 'What tests should cover this feature?'"
 ---

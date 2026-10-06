@@ -1,6 +1,6 @@
 ---
 name: defensive-programming
-description: "Defensive programming techniques — protect code from misuse, invalid input, and unexpected conditions through validation, assertions, and fail-fast strategies."
+description: "Defensive programming: validate input at boundaries, fail fast, assert invariants, defensive copies and null safety. Use when code accepts external input, exposes a public API, or must not be misused by callers."
 user-invocable: true
 argument-hint: "[validation|assertions|boundaries] - Example: 'Add defensive checks to this function'"
 ---

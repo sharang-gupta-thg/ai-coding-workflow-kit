@@ -1,6 +1,6 @@
 ---
 name: error-handling
-description: "Error handling strategies — choosing between checked/unchecked exceptions, result types, and error recovery patterns."
+description: "Error handling strategy: checked vs unchecked exceptions, result types, error context, retries and recovery, and never swallowing failures. Use when deciding whether to throw or return, designing error responses, or reviewing catch blocks."
 user-invocable: true
 argument-hint: "[exception|recovery|strategy] - Example: 'Should this throw or return a result?'"
 ---

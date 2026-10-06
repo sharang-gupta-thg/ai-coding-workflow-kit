@@ -1,6 +1,6 @@
 ---
 name: database-patterns
-description: "Database design patterns — N+1 queries, indexing, transactions, caching, and CQRS for performance and scalability."
+description: "Database access patterns: N+1 queries, indexing, transaction boundaries, connection pooling, caching and CQRS. Use when writing or reviewing queries, ORM mappings or repository code, or when a data path is slow."
 user-invocable: true
 argument-hint: "[query|index|performance] - Example: 'Optimize this N+1 query'"
 ---
