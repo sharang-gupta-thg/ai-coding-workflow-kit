@@ -14,8 +14,10 @@ of the loop; the full playbook — scenarios, prompts, routing — is in
 2. **Test it first (TDD)** — RED → GREEN → COMMIT. Write the failing test, minimum
    code to pass, one behaviour per commit. Run one focused test in the inner loop,
    the full suite before committing.
-3. **Review it** — `@code-guardian` full audit of `git diff main` before any PR.
-   Fix Critical/Major findings; re-check after fixing.
+3. **Review it** — before any PR, run `@code-guardian` (standards) and
+   `/code-review` (correctness bugs) on the branch vs main; add `/security-review`
+   when the change touches auth, user input, secrets or external calls. Fix every
+   verified finding, then re-review.
 
 ## Match effort to the task (route by knowledge gap)
 
@@ -43,4 +45,6 @@ guidance always wins over this file.
 - `@code-guardian` — reviews against 12 standards (Clean Code, Code-as-Prose,
   SOLID, defensive programming, concurrency, error handling, testing pyramid,
   API design, database patterns, observability, code review, refactoring).
+- `/code-review`, `/simplify`, `/security-review` — Claude Code's built-in
+  reviewers for bugs, cleanups and vulnerabilities.
 - nWave commands (`/nw-*`) — see the cheat sheet in DEVELOPER_GUIDE.html.
