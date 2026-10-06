@@ -215,8 +215,10 @@
     <section id="write-clean">
       <h2>Write clean code <span class="tag core">core · every task</span></h2>
       <p class="section-lede">The cheapest clean code is the code you never have to fix. Tell the agent your standards <em>up front</em>, in the prompt — don't wait for review to discover violations. Name the standards that matter for the task and set hard constraints.</p>
+      <h3>Make it the default, not a prompt you remember</h3>
+      <p>The loop in <code>CLAUDE.md.template</code> tells Claude to load the <code>clean-code-martin</code> and <code>code-as-prose</code> skills <em>before</em> writing any code and lists the rules it must write to. Because <code>CLAUDE.md</code> is read at the start of every session, every first draft is held to the standard without you asking. The preamble below is the same set of rules for a one-off request outside such a workspace.</p>
       <h3>A reusable prompt preamble</h3>
-      <p>Paste this (or keep it in a snippet) at the top of any "write me code" request. It front-loads the standards so the first draft is already close.</p>
+      <p>Paste this at the top of any "write me code" request when no <code>CLAUDE.md</code> carries the loop.</p>
       <pre><span class="g">Write this following clean-code standards:</span>
 - <span class="s">Names</span> reveal intent; no abbreviations (user not usr, config not cfg)
 - <span class="s">Functions</span> do one thing, ≤ ~20 lines, ≤ 3 params (use a value object beyond that)

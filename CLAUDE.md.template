@@ -6,11 +6,18 @@ of the loop; the full playbook — scenarios, prompts, routing — is in
 
 ## The default loop for any change with logic
 
-1. **Write it clean** — front-load standards in the prompt, don't wait for review.
-   Intention-revealing names, one responsibility per function/class, ≤3 params,
-   no magic numbers, no duplicated logic, specific exceptions with context,
-   clarity over cleverness. Ask `@code-guardian` where logic should live *before*
-   writing it when the structure isn't obvious.
+1. **Write it clean** — the standards apply while writing, not after. Before
+   writing or changing any code, load the `clean-code-martin` and `code-as-prose`
+   skills and write to them (don't wait for review to find violations):
+   - Code reads like well-written prose (Booch): top to bottom, one idea per line,
+     clarity over cleverness. If it needs a comment to be understood, rewrite it.
+   - Names reveal intent; no abbreviations (`user` not `usr`, `config` not `cfg`).
+   - Functions do one thing, ≤ ~20 lines, ≤ 3 parameters (a value object beyond that).
+   - One responsibility per class; depend on interfaces; inject dependencies.
+   - Validate input at the edge, fail fast, specific exceptions with context.
+   - No magic numbers, no duplicated logic, comments explain *why* only.
+   Ask `@code-guardian` where logic should live *before* writing it when the
+   structure isn't obvious.
 2. **Test it first (TDD)** — RED → GREEN → COMMIT. Write the failing test, minimum
    code to pass, one behaviour per commit. Run one focused test in the inner loop,
    the full suite before committing.
