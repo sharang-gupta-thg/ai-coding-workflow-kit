@@ -1,57 +1,58 @@
 # Workspace guidance (template)
 
-Copy this to `CLAUDE.md` in your workspace or repo root. It's the short version
-of the loop; the full playbook — scenarios, prompts, routing — is in
-**[DEVELOPER_GUIDE.html](DEVELOPER_GUIDE.html)**.
+Copy this to `CLAUDE.md` in your workspace or repo root (or merge it into what
+`/init` generated). It is the short version of the loop; the full playbook with
+scenarios and prompts is **[DEVELOPER_GUIDE.html](DEVELOPER_GUIDE.html)**.
 
 ## The default loop for any change with logic
 
-1. **Write it clean** — the standards apply while writing, not after. Before
-   writing or changing any code, load the `clean-code-martin` and `code-as-prose`
-   skills and write to them (don't wait for review to find violations):
-   - Code reads like well-written prose (Booch): top to bottom, one idea per line,
+1. **Write it clean** — standards apply while writing, not after. Before writing
+   or changing code, load the `clean-code-martin` and `code-as-prose` skills and
+   write to them:
+   - Reads like well-written prose (Booch): top to bottom, one idea per line,
      clarity over cleverness. If it needs a comment to be understood, rewrite it.
-   - Names reveal intent; no abbreviations (`user` not `usr`, `config` not `cfg`).
-   - Functions do one thing, ≤ ~20 lines, ≤ 3 parameters (a value object beyond that).
+   - Names reveal intent and tell the truth about behaviour; no abbreviations
+     (`user` not `usr`). When a rule changes, rename everything that described it.
+   - Functions do one thing, ≤ ~20 lines, ≤ 3 parameters (value object beyond that).
    - One responsibility per class; depend on interfaces; inject dependencies.
-   - Validate input at the edge, fail fast, specific exceptions with context.
-   - No magic numbers, no duplicated logic, comments explain *why* only.
-   Ask `@code-guardian` where logic should live *before* writing it when the
+   - Validate at the edge, fail fast, specific exceptions with context.
+   - No magic numbers, no duplication, comments explain *why* only. Constants only
+     when they add meaning — never `X = Y + 1` or a restated obvious value.
+   - Match the surrounding code's idiom. Boy-scout rule: leave touched code cleaner.
+   Ask `@code-guardian` where logic should live *before* writing when the
    structure isn't obvious.
-2. **Test it first (TDD)** — RED → GREEN → COMMIT. Write the failing test, minimum
-   code to pass, one behaviour per commit. Run one focused test in the inner loop,
-   the full suite before committing.
-3. **Review it** — before any PR, run `@code-guardian` (standards) and
-   `/code-review` (correctness bugs) on the branch vs main; add `/security-review`
-   when the change touches auth, user input, secrets or external calls. Fix every
-   verified finding, then re-review.
+2. **Test it first (TDD)** — RED → GREEN → COMMIT, one behaviour per commit.
+   Run one focused test in the inner loop and the full suite once at the end
+   (or let CI). A failing test is never deleted or weakened to ship.
+3. **Review it** — before any PR: `@code-guardian` (standards) and `/code-review`
+   (correctness) on the branch vs main; `/security-review` when it touches auth,
+   input, secrets or external calls. Fix **every** verified finding, style
+   included, then re-review. Nothing is deferred as "future work".
 
 ## Match effort to the task (route by knowledge gap)
 
-- **Config / infra / dep bump** — no nWave, no new test. Just do it, run the suite,
-  and use `@code-guardian` only when a mistake could break production
-  (networking, secrets, a changed client API).
-- **Bug** — `/nw-bugfix` (known cause) or `/nw-root-why` first (unknown). The
-  reproduction is a failing test that stays as the regression net.
-- **Feature / endpoint** — `/nw-discuss → /nw-design → /nw-distill → /nw-deliver`,
-  lean rigor. Ship it with tests.
-- **Refactor** — `/nw-hotspot → /nw-refactor`; tests stay green through every step.
-- **Big module (semi-greenfield)** — add `/nw-devops`, bump to `standard` rigor.
-- **New service (greenfield)** — full 7 waves from `/nw-discover`.
+| Task | Route |
+|---|---|
+| Config / infra / dep bump | No nWave, no new test. Do it, run the suite; Guardian only if a mistake could break production (networking, secrets, changed client API) |
+| Bug | `/nw-bugfix` (cause known) or `/nw-root-why` first; the reproduction test stays as the regression net |
+| Feature / endpoint | `/nw-discuss → /nw-design → /nw-distill → /nw-deliver`, lean rigor, ships with tests |
+| Refactor | `/nw-hotspot → /nw-refactor`; green through every step |
+| Big module (semi-greenfield) | add `/nw-devops`, `standard` rigor |
+| New service (greenfield) | all 7 waves from `/nw-discover` |
 
-Every feature ends `DISTILL → DELIVER`. Start at the earliest wave where real
-uncertainty exists; skip the rest. Default rigor is **lean** (`/nw-rigor lean`).
+Every feature ends `DISTILL → DELIVER`. Start at the earliest wave with real
+uncertainty; skip the rest. Default rigor is **lean** (`/nw-rigor lean`).
 
-## Respect each repo's own rules
+## Repo rules win
 
-Read a repo's own `AGENTS.md` / `CLAUDE.md` before designing — a repo's committed
-guidance always wins over this file.
+Read the repo's `AGENTS.md` / `CLAUDE.md` before designing; committed guidance
+beats this file. Add your stack's facts here (architecture, build and test
+commands, which test files are unit vs integration).
 
 ## Tools
 
-- `@code-guardian` — reviews against 12 standards (Clean Code, Code-as-Prose,
-  SOLID, defensive programming, concurrency, error handling, testing pyramid,
-  API design, database patterns, observability, code review, refactoring).
-- `/code-review`, `/simplify`, `/security-review` — Claude Code's built-in
-  reviewers for bugs, cleanups and vulnerabilities.
-- nWave commands (`/nw-*`) — see the cheat sheet in DEVELOPER_GUIDE.html.
+- `@code-guardian` — 12 standards (Clean Code, Code-as-Prose, SOLID, defensive
+  programming, concurrency, error handling, testing pyramid, API design,
+  database patterns, observability, code review, refactoring).
+- `/code-review`, `/simplify`, `/security-review` — Claude Code's built-in reviewers.
+- nWave `/nw-*` — cheat sheet in DEVELOPER_GUIDE.html.
