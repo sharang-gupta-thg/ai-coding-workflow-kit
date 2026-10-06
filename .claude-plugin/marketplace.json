@@ -1,0 +1,14 @@
+{
+  "name": "ai-coding-workflow-kit",
+  "description": "A write-clean, test-first, review-it workflow for Claude Code: the Code Guardian agent and 12 clean-code skills.",
+  "owner": {
+    "name": "Sharang Gupta"
+  },
+  "plugins": [
+    {
+      "name": "clean-code",
+      "source": "./",
+      "description": "Code Guardian review agent plus 12 clean-code skills."
+    }
+  ]
+}
