@@ -93,9 +93,9 @@ What this does, and what it needs:
 - **Edits:** `~/.claude/settings.json`. It adds the hook entries and keeps your own hooks
   and permissions. The first change saves a backup at `settings.json.before-nwave-tdd`.
   Re-running the flag replaces the kit's entries rather than duplicating them.
-- **Sets:** `update_check.frequency` to `never` in `~/.nwave/global-config.json` (only if
-  unset), so nothing calls out to GitHub or PyPI at session start. To get update notices,
-  change it to `daily` or `weekly`.
+- **Sets:** `update_check.frequency` to `never` in `~/.nwave/global-config.json`, replacing
+  any existing value, so nothing calls out to GitHub or PyPI at session start. To get
+  update notices, change it back by hand.
 - **Requires** the default `~/.claude` folder. It refuses if `CLAUDE_CONFIG_DIR` points elsewhere.
 
 To turn the hooks off, remove the `des-hook` and `execution-log` entries from

@@ -50,7 +50,7 @@ This also:
 - copies the hook package to `~/.claude/lib/python/des`;
 - adds the hook entries to `~/.claude/settings.json`, keeping your own hooks and permissions,
   and saves a one-time backup at `settings.json.before-nwave-tdd`;
-- sets nWave's update check to `never` in `~/.nwave/global-config.json`, if it is unset.
+- sets nWave's update check to `never` in `~/.nwave/global-config.json`, replacing any existing value.
 
 The hooks need the default `~/.claude` folder. The installer refuses if `CLAUDE_CONFIG_DIR`
 points elsewhere.
@@ -236,7 +236,7 @@ to confirm the commands are available.
 | `--with-tdd-hooks assumes the default ~/.claude` | `CLAUDE_CONFIG_DIR` points elsewhere | Unset `CLAUDE_CONFIG_DIR`, or drop the flag |
 | Hooks do not seem to run | Claude Code started before the install | Restart Claude Code. Check the `des-hook` entries in `settings.json` and that `~/.claude/lib/python/des` exists |
 | `/review-pr pr <n>` cannot reach GitHub | `gh` is not logged in, or GitHub is blocked | `gh auth status`; ask IT for GitHub access. `/review-pr own` needs neither. |
-| `nWave update available` at session start | The update check is on | Set `update_check.frequency` to `never` in `~/.nwave/global-config.json` |
+| `nWave update available` at session start | The update check is on, for example after you changed the setting by hand | Re-run `./install.sh --with-tdd-hooks`, or set `update_check.frequency` to `never` in `~/.nwave/global-config.json` |
 
 Re-running `./install.sh` (with the same flags) is always safe. It replaces the kit's files and
 its own settings entries, and leaves the rest alone.

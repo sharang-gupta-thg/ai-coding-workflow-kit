@@ -15,8 +15,8 @@ What it does:
 - Removes hook entries it installed earlier (matched by markers), so re-running
   never duplicates them. Entries you added yourself are kept.
 - Keeps a one-time backup of settings.json before the first change.
-- Sets update_check.frequency to "never" in nWave's global config, if unset,
-  so the session hook makes no network calls.
+- Sets update_check.frequency to "never" in nWave's global config, replacing any
+  existing value, so the session hook makes no network calls.
 """
 
 import argparse
@@ -78,11 +78,12 @@ def write_json(path: Path, data: dict) -> None:
 def set_update_check_never(path: Path) -> str:
     config = load_json(path, {})
     update_check = config.setdefault("update_check", {})
-    if "frequency" in update_check:
-        return f"kept your update_check.frequency = {update_check['frequency']!r}"
+    previous = update_check.get("frequency")
     update_check["frequency"] = "never"
     write_json(path, config)
-    return "set update_check.frequency = 'never' (no network call at session start)"
+    if previous in (None, "never"):
+        return "update_check.frequency = 'never' (no network call at session start)"
+    return f"update_check.frequency changed from {previous!r} to 'never' (no network call at session start)"
 
 
 def main() -> None:
