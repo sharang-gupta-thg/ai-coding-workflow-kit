@@ -93,16 +93,30 @@ merge_managed_block() {
 echo "Installing into: $CLAUDE_DIR"
 mkdir -p "$CLAUDE_DIR/agents" "$CLAUDE_DIR/skills"
 
+# A plugin that is installed already provides its skills and agents. Copying them
+# as well would load every skill twice, so the copy is skipped in that case.
+plugin_installed() {
+  grep -q "\"$1@ai-coding-workflow-kit\"" "$CLAUDE_DIR/plugins/installed_plugins.json" 2>/dev/null
+}
+
 # --- Code Guardian + clean-code skills ---------------------------------------
-cp "$SCRIPT_DIR/agents/code-guardian.md" "$CLAUDE_DIR/agents/code-guardian.md"
-clean_code_skills=("$SCRIPT_DIR"/skills/*/)
-copy_dirs "$CLAUDE_DIR/skills" "${clean_code_skills[@]%/}"
-echo "  ✓ code-guardian agent + ${#clean_code_skills[@]} clean-code skills (incl. /review-pr)"
+if plugin_installed clean-code; then
+  echo "  → clean-code plugin installed: using its agent and skills (no copies)"
+else
+  cp "$SCRIPT_DIR/agents/code-guardian.md" "$CLAUDE_DIR/agents/code-guardian.md"
+  clean_code_skills=("$SCRIPT_DIR"/skills/*/)
+  copy_dirs "$CLAUDE_DIR/skills" "${clean_code_skills[@]%/}"
+  echo "  ✓ code-guardian agent + ${#clean_code_skills[@]} clean-code skills (incl. /review-pr)"
+fi
 
 # --- nWave ---------------------------------------------------------------------
 # Copied from vendor/nwave, so no network access is needed. The TDD enforcement
 # hooks need nWave's Python package, which is not in this repo (see README).
-if $install_nwave; then
+if ! $install_nwave; then
+  echo "  → nWave skipped"
+elif plugin_installed nwave; then
+  echo "  → nwave plugin installed: using its skills, agents and commands (no copies)"
+else
   mkdir -p "$CLAUDE_DIR/agents/nw" "$CLAUDE_DIR/commands/nw"
   nwave_skills=("$NWAVE_DIR"/skills/nw-*/)
   copy_dirs "$CLAUDE_DIR/skills" "${nwave_skills[@]%/}"
@@ -111,8 +125,6 @@ if $install_nwave; then
   echo "  ✓ nWave $(cat "$NWAVE_DIR/VERSION"): ${#nwave_skills[@]} skills," \
        "$(ls "$NWAVE_DIR"/agents/*.md | wc -l | tr -d ' ') agents," \
        "$(ls "$NWAVE_DIR"/commands/*.md | wc -l | tr -d ' ') commands"
-else
-  echo "  → nWave skipped"
 fi
 
 # --- Always-on rules -----------------------------------------------------------
@@ -170,10 +182,12 @@ fi
 
 # --- Verify --------------------------------------------------------------------
 missing=0
-for path in "$CLAUDE_DIR/agents/code-guardian.md" "$CLAUDE_DIR/skills/review-pr/SKILL.md" \
-            "$CLAUDE_DIR/skills/clean-code-checklist/SKILL.md"; do
-  if [ ! -f "$path" ]; then echo "  ✗ missing: $path" >&2; missing=1; fi
-done
+if ! plugin_installed clean-code; then
+  for path in "$CLAUDE_DIR/agents/code-guardian.md" "$CLAUDE_DIR/skills/review-pr/SKILL.md" \
+              "$CLAUDE_DIR/skills/clean-code-checklist/SKILL.md"; do
+    if [ ! -f "$path" ]; then echo "  ✗ missing: $path" >&2; missing=1; fi
+  done
+fi
 if $merge_rules && ! grep -qF "$BLOCK_BEGIN" "$GLOBAL_MEMORY"; then
   echo "  ✗ rules block not found in $GLOBAL_MEMORY" >&2; missing=1
 fi
@@ -190,8 +204,13 @@ command -v gh >/dev/null || echo "  ! 'gh' not on PATH: /review-pr pr <n> needs 
 
 echo ""
 echo "Done. Restart Claude Code (or start a new session), then try:"
-echo "  /review-pr own            # before you raise a PR: fixes your branch"
-echo "  /review-pr pr 123         # review someone's PR: fixes land on a review branch"
+if plugin_installed clean-code; then
+  echo "  /clean-code:review-pr own     # before you raise a PR: fixes your branch"
+  echo "  /clean-code:review-pr pr 123  # review someone's PR: fixes land on a review branch"
+else
+  echo "  /review-pr own            # before you raise a PR: fixes your branch"
+  echo "  /review-pr pr 123         # review someone's PR: fixes land on a review branch"
+fi
 echo "  /nw-buddy what should I do next?"
 if $with_tdd_hooks; then
   echo "TDD hooks are on for new sessions. Turn them off by removing the 'des-hook' entries from ~/.claude/settings.json (backup: settings.json.before-nwave-tdd)."

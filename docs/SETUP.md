@@ -35,7 +35,8 @@ unless noted.
 ./install.sh
 ```
 
-Restart Claude Code. The installer copies the Guardian agent, the clean-code skills,
+If the `clean-code` or `nwave` plugin is already installed, the installer skips the copies of
+that plugin's skills and agents, so nothing loads twice. Restart Claude Code. Otherwise the installer copies the Guardian agent, the clean-code skills,
 `/review-pr` and nWave's skills, agents and commands, then merges the always-on rules into
 `~/.claude/CLAUDE.md`. Re-running it updates only those files.
 
