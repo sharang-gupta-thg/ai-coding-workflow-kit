@@ -2,15 +2,131 @@
 
 A reproducible [Claude Code](https://claude.com/product/claude-code) setup that pairs
 the **[nWave](https://github.com/nWave-ai/nWave)** feature-delivery framework with a
-**Code Guardian** review agent and 12 clean-code skills, so any change, from a one-line
-config edit to a brand-new service, follows the same loop:
+**Code Guardian** review agent, a `/review-pr` workflow and 12 clean-code skills. Once
+installed, every change follows the same loop, from a one-line config edit to a new service:
 
 > **Write it clean → Test it first (TDD) → Review it.**
 
-The full playbook is **[`DEVELOPER_GUIDE.html`](DEVELOPER_GUIDE.html)**: open it in a
-browser and keep it next to your editor. It has a scenario for whatever you're doing
-today (config, bug, dependency bump, new endpoint, refactor, semi-greenfield,
-greenfield) with the exact commands and prompts for each.
+The full playbook is **[`DEVELOPER_GUIDE.html`](DEVELOPER_GUIDE.html)**. Open it in a
+browser and keep it next to your editor.
+
+---
+
+## Set up with Claude (easiest)
+
+Open Claude Code anywhere and paste this:
+
+```text
+Set up the AI coding workflow kit on this machine.
+
+1. Check that `claude`, `git` and `gh` are installed and that `gh auth status` is logged in.
+   If something is missing, tell me what to install and stop.
+2. Clone https://github.com/sharang-gupta-thg/ai-coding-workflow-kit into ~/ai-coding-workflow-kit.
+   If it already exists, run `git -C ~/ai-coding-workflow-kit pull` instead.
+3. Ask me whether I already installed nWave with its own installer. If yes, use --skip-nwave.
+4. Run ~/ai-coding-workflow-kit/install.sh (with that flag if needed).
+5. Confirm the output reports the workflow rules merged into ~/.claude/CLAUDE.md and the
+   review-pr skill installed. Do not edit anything else in ~/.claude.
+6. Tell me to restart Claude Code, and show me the three commands to try:
+   /review-pr own, /review-pr pr <number>, /nw-buddy what should I do next?
+```
+
+Claude does the steps and reports back. Or run them yourself (below).
+
+---
+
+## Install by hand
+
+```bash
+git clone https://github.com/sharang-gupta-thg/ai-coding-workflow-kit.git
+cd ai-coding-workflow-kit
+./install.sh
+```
+
+Then restart Claude Code. The installer:
+
+- copies the Code Guardian agent, the clean-code skills and `/review-pr` into `~/.claude`;
+- installs nWave's skills, agents and `/nw-*` commands from the vendored snapshot;
+- merges the always-on workflow rules (`workflow-rules.md`) into `~/.claude/CLAUDE.md`,
+  inside a marked block. Your own text outside that block is never touched, and re-running
+  the installer replaces the block rather than adding a second one;
+- checks that the files are in place, and warns if `claude` or `gh` is missing.
+
+Options:
+
+| Flag | Use when |
+|---|---|
+| `--skip-nwave` | you installed nWave with its own installer or plugin |
+| `--no-global-rules` | you want the skills but not the rules in `~/.claude/CLAUDE.md` |
+
+nWave's **TDD enforcement hooks** need its Python package, which the snapshot can't
+include. If you want them, run nWave's own installer; it writes to the same paths:
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/nWave-ai/nWave/main/scripts/install/install.sh)"
+```
+
+Then install the kit with `./install.sh --skip-nwave`.
+
+### As a plugin instead
+
+```text
+/plugin marketplace add sharang-gupta-thg/ai-coding-workflow-kit
+/plugin install clean-code@ai-coding-workflow-kit
+```
+
+The plugin gives you the agent and skills, namespaced as `clean-code:code-guardian` and
+`clean-code:review-pr`. It does **not** merge the always-on rules. For those, either run
+`./install.sh` or paste the contents of `workflow-rules.md` into your `CLAUDE.md`.
+
+---
+
+## What your Claude does by default
+
+Two kinds of guidance work together:
+
+- **Always on** (`~/.claude/CLAUDE.md`, from `workflow-rules.md`). Every session starts
+  with the rules: load the clean-code skills before writing logic, run `/review-pr own`
+  before finishing a change, test first, and route by knowledge gap. Claude follows them
+  without being asked.
+- **On demand** (skills and the agent). `/review-pr`, `/nw-*` and the clean-code skills
+  load when they're invoked or when the work calls for them.
+
+Repo guidance (`AGENTS.md`, `CLAUDE.md` in a project) still wins over both.
+
+### Clean code at three points
+
+The same standards apply at each stage, so most violations never reach a PR.
+
+1. **While writing.** Claude loads `clean-code-martin`, `code-as-prose` and
+   `clean-code-checklist` before it changes code.
+2. **Before you raise a PR.** `/review-pr own` runs Guardian, then checks every changed
+   file against each Martin principle and the Booch prose questions. It fixes every
+   verified finding on your branch, one commit per fix.
+3. **When reviewing a PR.** `/review-pr pr 123` runs the same checks on someone's PR and
+   opens a `review/123-…` branch with the fixes, targeted at their branch. The author can
+   merge the whole branch or cherry-pick individual commits.
+
+### Using `/review-pr`
+
+**`own`** (your branch, before the PR exists):
+
+1. Diffs the branch against `main` (or `master`/`develop`).
+2. Runs the `code-guardian` agent, then the Martin checklist and the Booch check on every
+   changed file.
+3. Fixes every verified finding, one commit each. Tests run after each change.
+4. Repeats the review until it is clean, or lists what is left and why.
+
+**`pr <n>`** (someone's PR, or your own):
+
+1. Fetches the PR's branch and creates `review/<n>-<topic>` from it in a separate worktree.
+2. Runs the same review and fixes every verified finding there.
+3. Pushes the review branch and opens a PR into the original PR's branch, with the fixes
+   grouped by principle.
+4. Reports the commit SHAs, so the author can merge the whole branch or cherry-pick.
+
+If the PR is not yours, the skill reviews freely but asks before pushing or opening
+anything against their branch.
 
 ---
 
@@ -18,16 +134,17 @@ greenfield) with the exact commands and prompts for each.
 
 | Path | What it is |
 |------|-----------|
+| `workflow-rules.md` | The always-on rules, merged into `~/.claude/CLAUDE.md` by the installer |
 | `DEVELOPER_GUIDE.html` | The reference: scenarios, prompts, routing, cheat sheets |
 | `agents/code-guardian.md` | Review agent carrying 12 professional standards |
 | `skills/review-pr/` | The `/review-pr` workflow: `own` (before your PR) and `pr <n>` (someone's PR) |
 | `skills/clean-code-checklist/` | Every Martin principle and Booch prose question as a checklist item |
 | `skills/` | The 12 clean-code skills, one per standard, plus the two above |
 | `vendor/nwave/` | Snapshot of nWave's skills, agents and commands (version in `VERSION`) |
-| `CLAUDE.md.template` | Drop-in workspace guidance encoding the default loop |
-| `install.sh` | Copies everything into `~/.claude` |
+| `CLAUDE.md.template` | Project-level guidance: the same loop, plus a place for your stack's facts |
+| `install.sh` | Installs everything into `~/.claude` (`CLAUDE_CONFIG_DIR` overrides the target) |
 | `scripts/sync-nwave.sh` | Refreshes `vendor/nwave` from upstream |
-| `.claude-plugin/` | Lets you install the Guardian + skills as a Claude Code plugin instead |
+| `.claude-plugin/` | Installs the Guardian, skills and `/review-pr` as a Claude Code plugin |
 
 ### The two pieces
 
@@ -37,70 +154,12 @@ greenfield) with the exact commands and prompts for each.
 2. **Code Guardian** is one review agent that checks code against 12 standards: Clean
    Code, code-as-prose, SOLID, defensive programming, concurrency, error handling, the
    testing pyramid, API design, database patterns, observability, code-review practice
-   and refactoring. Each standard is a skill in `skills/`, and the agent preloads all of
-   them. It reads the branch or file itself, so there is nothing to paste.
+   and refactoring. It preloads the standards as skills and reads the branch or file
+   itself, so there is nothing to paste.
 
 Both sit alongside Claude Code's built-in reviewers: `/code-review` finds correctness
 bugs, `/simplify` cleans up reuse and complexity, `/security-review` hunts
 vulnerabilities. Guardian covers design and standards. The guide says when to use which.
-
-### Clean code at three points
-
-The same standards apply at each stage, so most violations never reach a PR.
-
-1. **While writing.** Claude loads `clean-code-martin` and `code-as-prose` before it
-   changes code (set up by `CLAUDE.md.template`), so the first draft is closer to clean.
-2. **Before you raise a PR.** `/review-pr own` runs Guardian, then checks every changed
-   file against each Martin principle and the Booch prose questions. It fixes every
-   verified finding on your branch, one commit per fix.
-3. **When reviewing a PR.** `/review-pr pr 123` runs the same checks on someone's PR and
-   opens a `review/123-…` branch with the fixes, targeted at their branch. The author can
-   merge the whole branch or cherry-pick individual commits.
-
----
-
-## Install
-
-### Option A: the installer (everything)
-
-```bash
-git clone https://github.com/sharang-gupta-thg/ai-coding-workflow-kit.git
-cd ai-coding-workflow-kit
-./install.sh
-```
-
-Installs the Guardian agent, the 12 clean-code skills, and nWave's skills, agents and
-`/nw-*` commands into `~/.claude`. Restart Claude Code.
-
-One thing the snapshot can't give you: nWave's **TDD enforcement hooks** need its Python
-package. If you want them, run nWave's own installer (it writes to the same paths, so
-the two can be used together):
-
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/nWave-ai/nWave/main/scripts/install/install.sh)"
-```
-
-Use `./install.sh --skip-nwave` if you installed nWave that way and only want the
-Guardian and skills from here.
-
-### Option B: as a plugin (Guardian + clean-code skills only)
-
-Inside Claude Code:
-
-```text
-/plugin marketplace add sharang-gupta-thg/ai-coding-workflow-kit
-/plugin install clean-code@ai-coding-workflow-kit
-```
-
-Plugin components are namespaced, so the agent is `clean-code:code-guardian` and the
-skills are `clean-code:solid-principles` and so on. nWave publishes its own plugin;
-see its README.
-
-### Adopt the loop
-
-Copy `CLAUDE.md.template` to `CLAUDE.md` in your workspace or a repo root (or merge it
-into what `/init` generated) so Claude follows the write-clean → TDD → review loop by
-default.
 
 ---
 
@@ -124,27 +183,6 @@ default.
 /review-pr pr 123
 ```
 
-### Using `/review-pr`
-
-**`own`** (your branch, before the PR exists):
-
-1. Diffs the branch against `main` (or `master`/`develop`).
-2. Runs the `code-guardian` agent, then the Martin checklist and the Booch check on every
-   changed file.
-3. Fixes every verified finding, one commit each. Tests run after each change.
-4. Repeats the review until it is clean, or lists what is left and why.
-
-**`pr <n>`** (someone's PR, or your own):
-
-1. Fetches the PR's branch and creates `review/<n>-<topic>` from it in a separate worktree.
-2. Runs the same review and fixes every verified finding there.
-3. Pushes the review branch and opens a PR into the original PR's branch, with the fixes
-   grouped by principle.
-4. Reports the commit SHAs, so the author can merge the whole branch or cherry-pick.
-
-If the PR is not yours, the skill reviews freely but asks before pushing or opening
-anything against their branch.
-
 Set your default rigor once:
 
 ```text
@@ -164,21 +202,36 @@ Set your default rigor once:
      └──────────┬───────────┘   feature → DISCUSS…DELIVER
                 │               new service → all 7 waves
                 ▼
-   WRITE CLEAN  →  TDD (RED→GREEN→COMMIT)  →  @code-guardian + /code-review
-   (prompt up-front)   (nWave DELIVER or by hand)      (audit the branch)
+   WRITE CLEAN  →  TDD (RED→GREEN→COMMIT)  →  /review-pr own  →  PR
+   (rules always on)  (nWave DELIVER or by hand)   (guardian + checklist, fixes on branch)
                 │
                 ▼
-        Verified change shipped
+   PR review:  /review-pr pr <n>  →  review branch into their branch  →  merge or cherry-pick
 ```
+
+---
+
+## Uninstall
+
+Remove the kit's files and its block from the rules file:
+
+```bash
+rm -rf ~/.claude/skills/review-pr ~/.claude/skills/clean-code-checklist ~/.claude/agents/code-guardian.md
+# then delete the lines from "<!-- BEGIN ai-coding-workflow-kit" to "<!-- END ai-coding-workflow-kit -->" in ~/.claude/CLAUDE.md
+```
+
+The other clean-code skills and nWave's files are listed in `install.sh`; remove them the
+same way if you no longer want them.
 
 ---
 
 ## Keeping it current
 
 ```bash
-scripts/sync-nwave.sh        # pull the latest nWave release into vendor/nwave
-./install.sh                 # reinstall
-claude update                # Claude Code itself
+git -C ~/ai-coding-workflow-kit pull     # get the latest kit
+~/ai-coding-workflow-kit/install.sh      # reinstall: updates the skills and the rules block
+scripts/sync-nwave.sh                    # maintainers: pull the latest nWave into vendor/nwave
+claude update                            # Claude Code itself
 ```
 
 ---
