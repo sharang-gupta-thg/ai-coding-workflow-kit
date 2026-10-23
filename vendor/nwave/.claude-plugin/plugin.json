@@ -1,0 +1,12 @@
+{
+  "name": "nwave",
+  "description": "nWave: skills, agents and /nw-* commands for the idea-to-code workflow (discover, discuss, design, distill, deliver). Snapshot of the open MIT repo github.com/nWave-ai/nWave.",
+  "author": {
+    "name": "nWave AI",
+    "email": "hello@nwave.ai"
+  },
+  "homepage": "https://github.com/nWave-ai/nWave",
+  "repository": "https://github.com/nWave-ai/nWave",
+  "license": "MIT",
+  "version": "3.22.2"
+}

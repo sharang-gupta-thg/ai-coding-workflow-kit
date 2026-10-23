@@ -12,9 +12,40 @@ browser and keep it next to your editor.
 
 ---
 
-## Set up with Claude (easiest)
+## Install in any Claude session (plugins)
 
-Open Claude Code anywhere and paste this:
+This is the simplest route. The tools load in any Claude Code session, including the desktop
+app's Code tab. No shell script and no Python. Run these once in a session:
+
+```text
+/plugin marketplace add sharang-gupta-thg/ai-coding-workflow-kit
+/plugin install clean-code@ai-coding-workflow-kit
+/plugin install nwave@ai-coding-workflow-kit
+```
+
+- **`clean-code`**: the Guardian agent, `/review-pr`, the Martin and Booch checklist, and 12
+  clean-code skills.
+- **`nwave`**: nWave's skills, agents and `/nw-*` commands, from the open MIT repo.
+
+Plugin skills are namespaced, for example `clean-code:review-pr` and `nwave:nw-buddy`. Check the
+exact names with `/plugin` or by typing `/`.
+
+Two things plugins cannot carry, so they stay in the installer:
+
+- **Always-on rules** in `~/.claude/CLAUDE.md`. Without them, the workflow loads only when you
+  call it. Use `./install.sh` for these, or paste `workflow-rules.md` into your `CLAUDE.md`.
+- **TDD enforcement hooks**. These are Python and need dependencies. Use
+  `./install.sh --with-tdd-hooks`. See [docs/SETUP.md](docs/SETUP.md).
+
+Plugin installs need GitHub access once. Check what loaded with
+`claude plugin details nwave@ai-coding-workflow-kit`.
+
+---
+
+## Set up with Claude (installer, adds the always-on rules)
+
+Open Claude Code anywhere and paste this. It uses the installer, so it also sets up the
+always-on rules. For a plugin-only setup, use the section above.
 
 ```text
 Set up the AI coding workflow kit on this machine.

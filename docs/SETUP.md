@@ -18,6 +18,7 @@ unless noted.
 
 | You want | Run | Needs |
 |---|---|---|
+| Skills, agents and `/review-pr` in any session, no shell | `/plugin marketplace add sharang-gupta-thg/ai-coding-workflow-kit`, then `/plugin install clean-code@ai-coding-workflow-kit` and `/plugin install nwave@ai-coding-workflow-kit` | GitHub, once |
 | The standard kit: nWave skills, Guardian, `/review-pr`, always-on rules | `./install.sh` | Nothing online |
 | The above plus the TDD enforcement hooks | `./install.sh --with-tdd-hooks` | Python 3.10+, PyPI once (or a wheelhouse) |
 | To keep your existing nWave install | `./install.sh --skip-nwave` | Nothing online |
@@ -91,16 +92,31 @@ cp ~/ai-coding-workflow-kit/CLAUDE.md.template CLAUDE.md   # then edit it for th
 
 Project-level copies are not updated by `install.sh`. Re-copy them after a `git pull` of the kit.
 
-### Plugin install
+### Plugin install (any session, no shell)
 
 ```text
 /plugin marketplace add sharang-gupta-thg/ai-coding-workflow-kit
 /plugin install clean-code@ai-coding-workflow-kit
+/plugin install nwave@ai-coding-workflow-kit
 ```
 
-This gives you the Guardian agent, the skills and `/review-pr`, namespaced as
-`clean-code:…`. It does not add the TDD hooks or the always-on rules. Use the installer for
-those. It needs GitHub access.
+`clean-code` gives you the Guardian agent, `/review-pr` and the clean-code skills, namespaced
+as `clean-code:…`. `nwave` gives you nWave's skills, agents and commands, namespaced as
+`nwave:…`. Both are read from the repo's `.claude-plugin` manifests. They need GitHub access
+once.
+
+Plugins do not add the always-on rules or the TDD hooks. The hooks need Python, which a plugin
+cannot install. Use the installer for those.
+
+The same steps from a terminal, for example when Claude runs them for you:
+
+```bash
+claude plugin marketplace add sharang-gupta-thg/ai-coding-workflow-kit
+claude plugin install clean-code@ai-coding-workflow-kit
+claude plugin install nwave@ai-coding-workflow-kit
+```
+
+Check what loaded with `claude plugin details nwave@ai-coding-workflow-kit`.
 
 ---
 
