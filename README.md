@@ -26,6 +26,8 @@ Set up the AI coding workflow kit on this machine.
    https://github.com/sharang-gupta-thg/ai-coding-workflow-kit. Only this step needs internet.
 3. Run ~/ai-coding-workflow-kit/install.sh. It installs everything from the folder itself,
    including nWave, and makes no network calls. Do not download anything else.
+   Ask me first whether I want the optional TDD enforcement hooks. If yes, run
+   ./install.sh --with-tdd-hooks instead. That needs Python 3.10+ and PyPI access once.
 5. Confirm the output reports the workflow rules merged into ~/.claude/CLAUDE.md and the
    review-pr skill installed. Do not edit anything else in ~/.claude.
 6. Tell me to restart Claude Code, and show me the three commands to try:
@@ -60,14 +62,40 @@ Options:
 |---|---|
 | `--skip-nwave` | you installed nWave with its own installer or plugin |
 | `--no-global-rules` | you want the skills but not the rules in `~/.claude/CLAUDE.md` |
-
-**Not included:** nWave's TDD enforcement hooks. They are a Python package that is not in
-this repo, so the offline install does not add them. The `/nw-*` skills still work without
-them. If you need the hooks, obtain nWave's package through your own approved route and
-install it there. This kit does not fetch it.
+| `--with-tdd-hooks` | you want nWave's TDD enforcement (see below). Needs Python 3.10+ and PyPI once |
 
 If you already run nWave another way, use `./install.sh --skip-nwave` to avoid copying the
 bundled version over it.
+
+### TDD enforcement hooks (optional)
+
+nWave's TDD gate is a Python package (`des`) that runs as Claude Code hooks. It is vendored
+in `vendor/nwave-hooks/` from the open [nWave repo](https://github.com/nWave-ai/nWave) (MIT).
+It is off by default. Turn it on with:
+
+```bash
+./install.sh --with-tdd-hooks
+```
+
+What this does, and what it needs:
+
+- **Needs:** Python 3.10 or newer on your PATH, and PyPI access once to install its
+  dependencies (rich, typer, pydantic, pyyaml, httpx and so on). Everything else is offline.
+- **Installs:** a private virtualenv at `~/.claude/lib/nwave-venv`, the package at
+  `~/.claude/lib/python/des`. Your system Python is not changed.
+- **Edits:** `~/.claude/settings.json`. It adds the hook entries and keeps your own hooks
+  and permissions. The first change saves a backup at `settings.json.before-nwave-tdd`.
+  Re-running the flag replaces the kit's entries rather than duplicating them.
+- **Sets:** `update_check.frequency` to `never` in `~/.nwave/global-config.json` (only if
+  unset), so nothing calls out to GitHub or PyPI at session start. To get update notices,
+  change it to `daily` or `weekly`.
+- **Requires** the default `~/.claude` folder. It refuses if `CLAUDE_CONFIG_DIR` points elsewhere.
+
+To turn the hooks off, remove the `des-hook` and `execution-log` entries from
+`~/.claude/settings.json`, or restore the backup.
+
+Once they are on, `/nw-deliver` enforces the TDD phases. Bash commands that edit
+`execution-log.json` directly are blocked. Use `/nw-*` for phase logging, not hand edits.
 
 ### As a plugin instead (needs GitHub access)
 
@@ -145,8 +173,9 @@ anything against their branch.
 | `skills/` | The 12 clean-code skills, one per standard, plus the two above |
 | `vendor/nwave/` | Snapshot of nWave's skills, agents and commands (version in `VERSION`) |
 | `CLAUDE.md.template` | Project-level guidance: the same loop, plus a place for your stack's facts |
+| `vendor/nwave-hooks/` | nWave's TDD enforcement hooks (Python, MIT), used by `--with-tdd-hooks` |
 | `install.sh` | Installs everything into `~/.claude` (`CLAUDE_CONFIG_DIR` overrides the target) |
-| `scripts/sync-nwave.sh` | Refreshes `vendor/nwave` from upstream |
+| `scripts/sync-nwave.sh` | Refreshes `vendor/nwave` and `vendor/nwave-hooks` from the open nWave repo (pass a tag to pin) |
 | `.claude-plugin/` | Installs the Guardian, skills and `/review-pr` as a Claude Code plugin |
 
 ### The two pieces
@@ -233,7 +262,7 @@ same way if you no longer want them.
 ```bash
 ~/ai-coding-workflow-kit/install.sh      # offline: updates the skills and the rules block
 git -C ~/ai-coding-workflow-kit pull     # needs GitHub: get the latest kit
-scripts/sync-nwave.sh                    # maintainers, needs GitHub: refresh vendor/nwave
+scripts/sync-nwave.sh [tag]              # maintainers, needs GitHub: refresh vendor/nwave and vendor/nwave-hooks
 claude update                            # needs internet: Claude Code itself
 ```
 
