@@ -77,9 +77,8 @@ copy_dirs "$CLAUDE_DIR/skills" "${clean_code_skills[@]%/}"
 echo "  ✓ code-guardian agent + ${#clean_code_skills[@]} clean-code skills (incl. /review-pr)"
 
 # --- nWave ---------------------------------------------------------------------
-# Same layout as nWave's own installer, so either one can update the other's
-# files. The TDD enforcement hooks need nWave's Python package and are not
-# vendored; install nWave the official way if you want them (see README).
+# Copied from vendor/nwave, so no network access is needed. The TDD enforcement
+# hooks need nWave's Python package, which is not in this repo (see README).
 if $install_nwave; then
   mkdir -p "$CLAUDE_DIR/agents/nw" "$CLAUDE_DIR/commands/nw"
   nwave_skills=("$NWAVE_DIR"/skills/nw-*/)

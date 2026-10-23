@@ -21,10 +21,11 @@ Set up the AI coding workflow kit on this machine.
 
 1. Check that `claude`, `git` and `gh` are installed and that `gh auth status` is logged in.
    If something is missing, tell me what to install and stop.
-2. Clone https://github.com/sharang-gupta-thg/ai-coding-workflow-kit into ~/ai-coding-workflow-kit.
-   If it already exists, run `git -C ~/ai-coding-workflow-kit pull` instead.
-3. Ask me whether I already installed nWave with its own installer. If yes, use --skip-nwave.
-4. Run ~/ai-coding-workflow-kit/install.sh (with that flag if needed).
+2. Get the kit into ~/ai-coding-workflow-kit. If it is already on this machine (for example
+   copied in or unzipped), use that folder. Otherwise clone
+   https://github.com/sharang-gupta-thg/ai-coding-workflow-kit. Only this step needs internet.
+3. Run ~/ai-coding-workflow-kit/install.sh. It installs everything from the folder itself,
+   including nWave, and makes no network calls. Do not download anything else.
 5. Confirm the output reports the workflow rules merged into ~/.claude/CLAUDE.md and the
    review-pr skill installed. Do not edit anything else in ~/.claude.
 6. Tell me to restart Claude Code, and show me the three commands to try:
@@ -43,10 +44,11 @@ cd ai-coding-workflow-kit
 ./install.sh
 ```
 
-Then restart Claude Code. The installer:
+Then restart Claude Code. The installer needs no internet access. Everything it installs
+is in this folder:
 
 - copies the Code Guardian agent, the clean-code skills and `/review-pr` into `~/.claude`;
-- installs nWave's skills, agents and `/nw-*` commands from the vendored snapshot;
+- installs nWave's skills, agents and `/nw-*` commands from `vendor/nwave/`;
 - merges the always-on workflow rules (`workflow-rules.md`) into `~/.claude/CLAUDE.md`,
   inside a marked block. Your own text outside that block is never touched, and re-running
   the installer replaces the block rather than adding a second one;
@@ -59,21 +61,22 @@ Options:
 | `--skip-nwave` | you installed nWave with its own installer or plugin |
 | `--no-global-rules` | you want the skills but not the rules in `~/.claude/CLAUDE.md` |
 
-nWave's **TDD enforcement hooks** need its Python package, which the snapshot can't
-include. If you want them, run nWave's own installer; it writes to the same paths:
+**Not included:** nWave's TDD enforcement hooks. They are a Python package that is not in
+this repo, so the offline install does not add them. The `/nw-*` skills still work without
+them. If you need the hooks, obtain nWave's package through your own approved route and
+install it there. This kit does not fetch it.
 
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/nWave-ai/nWave/main/scripts/install/install.sh)"
-```
+If you already run nWave another way, use `./install.sh --skip-nwave` to avoid copying the
+bundled version over it.
 
-Then install the kit with `./install.sh --skip-nwave`.
-
-### As a plugin instead
+### As a plugin instead (needs GitHub access)
 
 ```text
 /plugin marketplace add sharang-gupta-thg/ai-coding-workflow-kit
 /plugin install clean-code@ai-coding-workflow-kit
 ```
+
+Installing the plugin fetches from GitHub, so it is not offline.
 
 The plugin gives you the agent and skills, namespaced as `clean-code:code-guardian` and
 `clean-code:review-pr`. It does **not** merge the always-on rules. For those, either run
@@ -228,11 +231,14 @@ same way if you no longer want them.
 ## Keeping it current
 
 ```bash
-git -C ~/ai-coding-workflow-kit pull     # get the latest kit
-~/ai-coding-workflow-kit/install.sh      # reinstall: updates the skills and the rules block
-scripts/sync-nwave.sh                    # maintainers: pull the latest nWave into vendor/nwave
-claude update                            # Claude Code itself
+~/ai-coding-workflow-kit/install.sh      # offline: updates the skills and the rules block
+git -C ~/ai-coding-workflow-kit pull     # needs GitHub: get the latest kit
+scripts/sync-nwave.sh                    # maintainers, needs GitHub: refresh vendor/nwave
+claude update                            # needs internet: Claude Code itself
 ```
+
+Only `/review-pr pr <n>` needs GitHub at run time, since it reads and pushes PRs.
+`/review-pr own` works offline.
 
 ---
 
