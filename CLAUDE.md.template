@@ -20,14 +20,17 @@ scenarios and prompts is **[DEVELOPER_GUIDE.html](DEVELOPER_GUIDE.html)**.
      when they add meaning — never `X = Y + 1` or a restated obvious value.
    - Match the surrounding code's idiom. Boy-scout rule: leave touched code cleaner.
    Ask `@code-guardian` where logic should live *before* writing when the
-   structure isn't obvious.
+   structure isn't obvious. Before you finish a change, run `/review-pr own`:
+   it checks every file against the Martin and Booch checklist and fixes what it
+   finds, so the PR review starts from a clean branch.
 2. **Test it first (TDD)** — RED → GREEN → COMMIT, one behaviour per commit.
    Run one focused test in the inner loop and the full suite once at the end
    (or let CI). A failing test is never deleted or weakened to ship.
-3. **Review it** — before any PR: `@code-guardian` (standards) and `/code-review`
-   (correctness) on the branch vs main; `/security-review` when it touches auth,
-   input, secrets or external calls. Fix **every** verified finding, style
-   included, then re-review. Nothing is deferred as "future work".
+3. **Review it** — before any PR: `/review-pr own` (standards: guardian, Martin
+   checklist, Booch prose; fixes on your branch), then `/code-review` (correctness)
+   on the branch vs main; `/security-review` when it touches auth, input, secrets
+   or external calls. Fix **every** verified finding, style included, then re-review.
+   Nothing is deferred as "future work".
 
 ## Match effort to the task (route by knowledge gap)
 

@@ -20,7 +20,9 @@ greenfield) with the exact commands and prompts for each.
 |------|-----------|
 | `DEVELOPER_GUIDE.html` | The reference: scenarios, prompts, routing, cheat sheets |
 | `agents/code-guardian.md` | Review agent carrying 12 professional standards |
-| `skills/` | The 12 clean-code skills, one per standard |
+| `skills/review-pr/` | The `/review-pr` workflow: `own` (before your PR) and `pr <n>` (someone's PR) |
+| `skills/clean-code-checklist/` | Every Martin principle and Booch prose question as a checklist item |
+| `skills/` | The 12 clean-code skills, one per standard, plus the two above |
 | `vendor/nwave/` | Snapshot of nWave's skills, agents and commands (version in `VERSION`) |
 | `CLAUDE.md.template` | Drop-in workspace guidance encoding the default loop |
 | `install.sh` | Copies everything into `~/.claude` |
@@ -41,6 +43,19 @@ greenfield) with the exact commands and prompts for each.
 Both sit alongside Claude Code's built-in reviewers: `/code-review` finds correctness
 bugs, `/simplify` cleans up reuse and complexity, `/security-review` hunts
 vulnerabilities. Guardian covers design and standards. The guide says when to use which.
+
+### Clean code at three points
+
+The same standards apply at each stage, so most violations never reach a PR.
+
+1. **While writing.** Claude loads `clean-code-martin` and `code-as-prose` before it
+   changes code (set up by `CLAUDE.md.template`), so the first draft is closer to clean.
+2. **Before you raise a PR.** `/review-pr own` runs Guardian, then checks every changed
+   file against each Martin principle and the Booch prose questions. It fixes every
+   verified finding on your branch, one commit per fix.
+3. **When reviewing a PR.** `/review-pr pr 123` runs the same checks on someone's PR and
+   opens a `review/123-…` branch with the fixes, targeted at their branch. The author can
+   merge the whole branch or cherry-pick individual commits.
 
 ---
 
@@ -101,10 +116,34 @@ default.
 # A new feature on a known area (lean rigor)
 /nw-discuss "add email verification"  →  /nw-design  →  /nw-distill  →  /nw-deliver
 
-# Review before a PR: standards, then bugs
-@code-guardian Full PR review of this branch vs main
+# Before you raise a PR: standards fixed on your branch, then bugs
+/review-pr own
 /code-review
+
+# Review someone's PR: standards findings and fixes on review/<n>-<topic>
+/review-pr pr 123
 ```
+
+### Using `/review-pr`
+
+**`own`** (your branch, before the PR exists):
+
+1. Diffs the branch against `main` (or `master`/`develop`).
+2. Runs the `code-guardian` agent, then the Martin checklist and the Booch check on every
+   changed file.
+3. Fixes every verified finding, one commit each. Tests run after each change.
+4. Repeats the review until it is clean, or lists what is left and why.
+
+**`pr <n>`** (someone's PR, or your own):
+
+1. Fetches the PR's branch and creates `review/<n>-<topic>` from it in a separate worktree.
+2. Runs the same review and fixes every verified finding there.
+3. Pushes the review branch and opens a PR into the original PR's branch, with the fixes
+   grouped by principle.
+4. Reports the commit SHAs, so the author can merge the whole branch or cherry-pick.
+
+If the PR is not yours, the skill reviews freely but asks before pushing or opening
+anything against their branch.
 
 Set your default rigor once:
 

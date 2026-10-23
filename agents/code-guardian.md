@@ -4,6 +4,7 @@ description: "Reviews code against 12 professional standards: Clean Code, code-a
 model: opus
 tools: Read, Grep, Glob, Bash
 skills:
+  - clean-code-checklist
   - clean-code-martin
   - code-as-prose
   - solid-principles

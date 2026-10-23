@@ -62,4 +62,5 @@ fi
 echo ""
 echo "Done. Restart Claude Code, then try:"
 echo "  /nw-buddy what should I do next?"
-echo "  @code-guardian Full PR review of this branch vs main"
+echo "  /review-pr own          # before you raise a PR"
+echo "  /review-pr pr 123       # review someone's PR, fixes land on a branch"

@@ -1,8 +1,8 @@
 {
   "name": "clean-code",
   "displayName": "Clean Code",
-  "version": "2.0.0",
-  "description": "Code Guardian review agent plus 12 clean-code skills: Clean Code, code-as-prose, SOLID, defensive programming, concurrency, error handling, testing pyramid, API design, database patterns, observability, code review and refactoring.",
+  "version": "2.1.0",
+  "description": "Code Guardian review agent, the /review-pr workflow, a Martin and Booch checklist, plus 12 clean-code skills: Clean Code, code-as-prose, SOLID, defensive programming, concurrency, error handling, testing pyramid, API design, database patterns, observability, code review and refactoring.",
   "author": {
     "name": "Sharang Gupta"
   },
