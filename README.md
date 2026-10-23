@@ -38,6 +38,10 @@ Claude does the steps and reports back. Or run them yourself (below).
 
 ---
 
+Choosing a setup, behind a corporate proxy, or on an offline machine? See
+**[docs/SETUP.md](docs/SETUP.md)**. It covers each use case, the CA bundle fix for networks
+that inspect HTTPS, and wheelhouses for machines without PyPI access.
+
 ## Install by hand
 
 ```bash
@@ -81,6 +85,9 @@ What this does, and what it needs:
 
 - **Needs:** Python 3.10 or newer on your PATH, and PyPI access once to install its
   dependencies (rich, typer, pydantic, pyyaml, httpx and so on). Everything else is offline.
+  Behind a network that inspects HTTPS, set `PIP_CERT` to your corporate CA bundle. No
+  PyPI at all? Build a wheelhouse with `scripts/make-wheelhouse.sh` and set
+  `NWAVE_WHEELHOUSE`. See [docs/SETUP.md](docs/SETUP.md).
 - **Installs:** a private virtualenv at `~/.claude/lib/nwave-venv`, the package at
   `~/.claude/lib/python/des`. Your system Python is not changed.
 - **Edits:** `~/.claude/settings.json`. It adds the hook entries and keeps your own hooks
